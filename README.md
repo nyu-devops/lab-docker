@@ -33,23 +33,23 @@ That's it! VirtualBox will install Docker into the virtual machine so you don't 
     vagrant up
     vagrant ssh
 
-### Installing on Mac OS X or Windows
+### Installing on Mac OS X or Windows
 Get Docker Toolbox from the Docker web site and install it:
 https://www.docker.com/docker-toolbox
 
-### Installing on Ubuntu Trusty 14.04 (LTS)
+### Installing on Ubuntu Trusty 14.04 (LTS)
 
     sudo apt-get update
     sudo apt-get install docker-engine
 
-Installing on Other OS
-See Docker installation guide:
+Installing on Other OS See Docker installation guide:
 https://docs.docker.com/installation/
 
 ### Cloud Foundry Installation for Ubuntu
 
-    wget -O cf-cli-installer_6.22.1_x86-64.deb 'https://cli.run.pivotal.io/stable?release=debian64&version=6.22.1&source=github-rel'
-    sudo dpkg -i cf-cli-installer_6.22.1_x86-64.deb
+    wget -O cf-cli-installer_6.24.0_x86-64.deb 'https://cli.run.pivotal.io/stable?release=debian64&version=6.24.0&source=github-rel'
+    sudo dpkg -i cf-cli-installer_6.24.0_x86-64.deb
+    rm cf-cli-installer_6.24.0_x86-64.deb
     echo Y | cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-linux_x64
 
 ### Enable auto-complete for docker
