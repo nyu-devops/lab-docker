@@ -5,10 +5,10 @@ FROM alpine:3.3
 MAINTAINER John Rofrano "rofrano@us.ibm.com"
 
 # Install just the Python runtime (no dev)
-RUN apk add --update \
+RUN apk add --no-cache \
     python \
     py-pip \
- && rm -rf /var/cache/apk/*
+    ca-certificates
 
 # Expose any ports the app is expecting in the environment
 ENV PORT 5000
@@ -18,6 +18,11 @@ EXPOSE $PORT
 WORKDIR /app
 ADD requirements.txt /app
 RUN pip install -r requirements.txt
+# If there are build dependencies use this instead
+# RUN apk --no-cache add --virtual build-dependencies python-dev build-base wget \
+#   && pip install -r requirements.txt \
+#   && python setup.py install \
+#   && apk del build-dependencies
 
 # Add the code as the last Docker layer because it changes the most
 ADD static /app/static

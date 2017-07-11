@@ -6,3 +6,6 @@ rednose==1.2.1
 pinocchio==0.4.2
 coverage==4.2
 codecov==2.0.5
+# Testing
+mockredispy
+mock==2.0.0

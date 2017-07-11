@@ -1,0 +1,14 @@
+# Local environment
+.env
+.DS_Store
+.Thumbs.db
+
+# These are repository files that we don't want in our image
+.git/
+.vagrant/
+
+# Pythion Virtual Environment
+venv/
+
+Vagrantfile
+Dockerfile

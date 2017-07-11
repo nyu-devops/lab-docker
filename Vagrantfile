@@ -56,13 +56,12 @@ Vagrant.configure(2) do |config|
   # Setup a Python development environment
   ######################################################################
   config.vm.provision "shell", inline: <<-SHELL
+    # Add Cloud Foundry CLI to apt-get sources
+    wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+    echo "deb http://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
     sudo apt-get update
-    sudo apt-get install -y git zip tree python-pip python-dev build-essential
+    sudo apt-get install -y git zip tree python-pip python-dev build-essential cf-cli
     sudo apt-get -y autoremove
-    # Install the Cloud Foundry CLI
-    wget -O cf-cli-installer_6.24.0_x86-64.deb 'https://cli.run.pivotal.io/stable?release=debian64&version=6.24.0&source=github-rel'
-    sudo dpkg -i cf-cli-installer_6.24.0_x86-64.deb
-    rm cf-cli-installer_6.24.0_x86-64.deb
     # Make vi look nice
     sudo -u vagrant echo "colorscheme desert" > ~/.vimrc
     # Install app dependencies
