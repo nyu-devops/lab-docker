@@ -147,8 +147,8 @@ minikube service hello-service
 ## Clean up
 Now you can clean up the resources you created in your cluster:
 ```
-kubectl delete service hello-node
-kubectl delete deployment hello-node
+kubectl delete service hello-service
+kubectl delete deployment hello-service
 ```
 
 Optionally, stop Minikube:
