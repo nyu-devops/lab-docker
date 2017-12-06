@@ -11,21 +11,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+'''
+Redis Counter Demo in Docker
+'''
 import os
-import redis
+import sys
+import logging
+from redis import Redis
+from redis.exceptions import ConnectionError
 from flask import Flask, jsonify, json
 
+DEBUG = (os.getenv('DEBUG', 'False') == 'True')
+PORT = os.getenv('PORT', '5000')
+
 app = Flask(__name__)
+
+redis_server = None
 
 # GET /
 @app.route('/')
 def Welcome():
+    ''' Home Page '''
     return app.send_static_file('index.html')
 
 # GET /counter
 @app.route('/counter', methods=['GET'])
 def get_counter():
+    ''' get the counter '''
     redis_server.incr('counter')
     count = redis_server.get('counter')
     return jsonify(counter=count), 200
@@ -33,47 +45,78 @@ def get_counter():
 # POST /counter
 @app.route('/counter', methods=['POST'])
 def set_counter():
+    ''' Set the counter '''
     redis_server.set('counter', 0)
     count = redis_server.get('counter')
     return jsonify(counter=count), 201
 
 # Initialize Redis
-def init_redis(hostname, port, password):
-    # Connect to Redis Server
+def connect_to_redis(hostname, port, password):
+    ''' Connects to Redis and tests the connection '''
     global redis_server
-    redis_server = redis.Redis(host=hostname, port=port, password=password)
+    app.logger.info("Testing Connection to: %s:%s", hostname, port)
+    redis_server = Redis(host=hostname, port=port, password=password)
     try:
-        response = redis_server.client_list()
-    except redis.ConnectionError:
-        # if you end up here, redis instance is down.
-        print '*** FATAL ERROR: Could not conect to the Redis Service'
+        redis_server.ping()
+        app.logger.info("Connection established")
+    except ConnectionError:
+        app.logger.info("Connection Error from: %s:%s", hostname, port)
+        redis_server = None
+    return redis_server
 
-def connect_to_redis():
-    # Get the crdentials from the Bluemix environment
+
+def init_db():
+    '''
+    Initialized Redis database connection
+
+    This method will work in the following conditions:
+      1) In Bluemix with Redis bound through VCAP_SERVICES
+      2) With Redis running on the local server as with Travis CI
+      3) With Redis --link in a Docker container called 'redis'
+    '''
+    global redis_server
+    # Get the credentials from the Bluemix environment
     if 'VCAP_SERVICES' in os.environ:
-        VCAP_SERVICES = os.environ['VCAP_SERVICES']
-        services = json.loads(VCAP_SERVICES)
-        redis_creds = services['rediscloud'][0]['credentials']
-        # pull out the fields we need
-        redis_hostname = redis_creds['hostname']
-        redis_port = int(redis_creds['port'])
-        redis_password = redis_creds['password']
+        app.logger.info("Using VCAP_SERVICES...")
+        vcap_services = os.environ['VCAP_SERVICES']
+        services = json.loads(vcap_services)
+        creds = services['rediscloud'][0]['credentials']
+        app.logger.info("Conecting to Redis on host %s port %s",
+                        creds['hostname'], creds['port'])
+        redis_server = connect_to_redis(creds['hostname'], creds['port'], creds['password'])
     else:
-        print "VCAP_SERVICES not found looking for host: redis"
-        response = os.system("ping -c 1 redis")
-        if response == 0:
-            redis_hostname = 'redis'
-        else:
-            redis_hostname = '127.0.0.1'
-        redis_port = 6379
-        redis_password = None
+        app.logger.info("VCAP_SERVICES not found, checking localhost for Redis")
+        redis_server = connect_to_redis('127.0.0.1', 6379, None)
+        if not redis_server:
+            app.logger.info("No Redis on localhost, looking for redis host")
+            redis_server = connect_to_redis('redis', 6379, None)
+    if not redis_server:
+        # if you end up here, redis instance is down.
+        app.logger.fatal('*** FATAL ERROR: Could not connect to the Redis Service')
 
-    init_redis(redis_hostname, redis_port, redis_password)
+def initialize_logging(log_level=logging.INFO):
+    """ Initialized the default logging to STDOUT """
+    if not app.debug:
+        print 'Setting up logging...'
+        # Set up default logging for submodules to use STDOUT
+        # datefmt='%m/%d/%Y %I:%M:%S %p'
+        fmt = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+        logging.basicConfig(stream=sys.stdout, level=log_level, format=fmt)
 
+        # Make a new log handler that uses STDOUT
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(fmt))
+        handler.setLevel(log_level)
+
+        # Remove the Flask default handlers and use our own
+        handler_list = list(app.logger.handlers)
+        for log_handler in handler_list:
+            app.logger.removeHandler(log_handler)
+        app.logger.addHandler(handler)
+        app.logger.setLevel(log_level)
+        app.logger.info('Logging handler established')
 
 if __name__ == "__main__":
     print "Hit Counter Service Starting..."
-    connect_to_redis()
-    debug = (os.getenv('DEBUG', 'False') == 'True')
-    port = os.getenv('PORT', '5000')
-    app.run(host='0.0.0.0', port=int(port), debug=debug)
+    init_db()
+    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)

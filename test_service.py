@@ -4,15 +4,18 @@
 # python -m unittest discover
 
 import unittest
+import logging
 import json
 import service
 
 class TestServer(unittest.TestCase):
 
     def setUp(self):
-        service.app.debug = True
+        service.app.debug = False
         self.app = service.app.test_client()
-        service.init_redis('127.0.0.1', 6379, None)
+        service.initialize_logging(logging.CRITICAL)
+        service.connect_to_redis('127.0.0.1', 6379, None)
+        #service.init_db()
 
     def test_index(self):
         resp = self.app.get('/')
