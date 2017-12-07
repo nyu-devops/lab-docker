@@ -120,7 +120,7 @@ kubectl expose deployment hello-service --type=LoadBalancer
 
 Get the service in a  browser with:
 ```
-minikube service hello-node
+minikube service hello-service
 ```
 
 ## Update your app
