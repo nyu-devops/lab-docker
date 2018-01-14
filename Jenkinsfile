@@ -23,6 +23,6 @@ node {
     stage "Deploy"
 
         sh "kubectl apply -f kubernetes/service.yaml"
-        sh "kubectl apply -f kubernetes/deployment.yaml"
+        sh "sed 's#hello-service:v1#'$BUILDIMG'#' kubernetes/deployment.yaml | kubectl apply -f -"
         sh "kubectl rollout status deployment/hello-service"
 }
