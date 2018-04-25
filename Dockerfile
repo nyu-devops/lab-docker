@@ -1,5 +1,5 @@
 # Start with a Linux micro-container to keep the image tiny
-FROM alpine:3.3
+FROM alpine:3.7
 
 # Document who is responsible for this image
 MAINTAINER John Rofrano "rofrano@us.ibm.com"

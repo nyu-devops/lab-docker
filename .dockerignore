@@ -7,6 +7,10 @@
 .git/
 .vagrant/
 
+# Deployment manifests
+kubernetes/
+deploy/
+
 # Pythion Virtual Environment
 venv/
 

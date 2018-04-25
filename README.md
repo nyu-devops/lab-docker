@@ -7,7 +7,7 @@ What is Docker? How can Docker containers help you build and deploy a cloud nati
 This lab is an example of how to create a Python / Flask / Redis app using Docker on Bluemix
 
 ## Setting up your Development Environment
-You must either install Docker and the Cloud Foundry CLI and IBM Container plug-in locally on your computer or use the Vagrant image that is included in this repo. We highly recommend just using Vegrant and VirtualBox.
+You must either install Docker and the Bluemix Cloud Foundry CLI and IBM Container plug-in locally on your computer or use the Vagrant image that is included in this repo. We highly recommend just using Vegrant and VirtualBox.
 
 We use Vagrant, VirtualBox, and Docker for virtualizing our development environment. Vagrant is technology that allows you to quickly provision and configure Linux virtual machines on your computer. VirtualBox is a hypervisor like VMware Fusion that hosts virtual machines. Docker is technology that will run multiple containers within a single Linux host machine. Together they make a powerful development environment that mimics multiple servers in a production environment.
 
@@ -17,14 +17,9 @@ Download [VirtualBox](https://www.virtualbox.org) - Used to host virtual machine
 
 Download [Vagrant](https://www.vagrantup.com) - Used to auto-provision VMs containing your complete dev environment
 
-Install VirtualBox and then Vagrant. If you want to test with cURL you will need to have it installed on your laptop if your system doesn't already have it.
+Install VirtualBox and then Vagrant. If you want to test with `cURL` you will need to have it installed on your laptop if your system doesn't already have it.
 
-#### Vagrant Plugin needed!
-You will need to install the following Vagrant plugin in order for file sharing to work properly:
-
-    vagrant plugin install vagrant-vbguest
-
-That's it! VirtualBox will install Docker into the virtual machine so you don't have to.
+VirtualBox will install Docker into the virtual machine so you don't have to.
 
 ### Install using Vagrant and VirtualBox
 
@@ -32,6 +27,19 @@ That's it! VirtualBox will install Docker into the virtual machine so you don't 
     cd lab-docker
     vagrant up
     vagrant ssh
+
+#### Note: vagrant up
+This `Vagrantfile` requires the `vagrant-docker-compose` plug-in. It will check for it and install it if it is not present. This will cause you to have to invoke `vagrant up` a second time. This is normal behavior.
+
+If you see this when you `vagrant up`
+```
+Installing the 'vagrant-docker-compose' plugin. This can take a few minutes...
+Fetching: vagrant-docker-compose-1.3.0.gem (100%)
+Installed the plugin 'vagrant-docker-compose (1.3.0)'!
+Dependencies installed, please try the command again.
+```
+
+Just issue `vagrant up` again.
 
 ### Installing on Mac OS X or Windows
 Get Docker Toolbox from the Docker web site and install it:

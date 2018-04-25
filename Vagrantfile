@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 # WARNING: You will need the following plugin:
-# vagrant plugin install vagrant-vbguest
+# vagrant plugin install vagrant-docker-compose
 
 unless Vagrant.has_plugin?("vagrant-docker-compose")
   system("vagrant plugin install vagrant-docker-compose")
@@ -50,20 +50,42 @@ Vagrant.configure(2) do |config|
   # Setup a Python development environment
   ######################################################################
   config.vm.provision "shell", inline: <<-SHELL
-    # Add Cloud Foundry CLI to apt-get sources
-    wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-    echo "deb http://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+    # Add Python dev environment
     apt-get update
-    apt-get install -y git zip tree python-pip python-dev build-essential cf-cli
+    apt-get install -y git zip tree python-pip python-dev
     apt-get -y autoremove
     pip install --upgrade pip
+
+    echo "\n******************************"
+    echo " Installing Bluemix CLI"
+    echo "******************************\n"
+    wget -q -O - https://clis.ng.bluemix.net/download/bluemix-cli/latest/linux64 | tar xzv
+    cd Bluemix_CLI/
+    ./install_bluemix_cli
+    cd ..
+    rm -fr Bluemix_CLI/
+    bluemix config --usage-stats-collect false
+    # Install container plugins
+    sudo -H -u vagrant bash -c "bx plugin install container-registry -r Bluemix"
+    sudo -H -u vagrant bash -c "bx plugin install container-service -r Bluemix"
+    # Prove they got installed
+    sudo -H -u vagrant bash -c "bx plugin show container-registry"
+    sudo -H -u vagrant bash -c "bx plugin show container-service"
+
     # Install Kubernetes kubectl
+    echo "\n******************************"
+    echo " Installing KubeCTL"
+    echo "******************************\n"
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     chmod +x ./kubectl
     sudo mv ./kubectl /usr/local/bin/kubectl
+
     # Make vi look nice
-    sudo -u ubuntu echo "colorscheme desert" > ~/.vimrc
+    sudo -H -u vagrant echo "colorscheme desert" > ~/.vimrc
     # Install app dependencies
+    echo "\n******************************"
+    echo " Installing App Dependencies"
+    echo "******************************\n"
     cd /vagrant
     sudo pip install -r requirements.txt
   SHELL
@@ -74,12 +96,12 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     # Prepare Redis data share
     sudo mkdir -p /var/lib/redis/data
-    sudo chown ubuntu:ubuntu /var/lib/redis/data
+    sudo chown vagrant:vagrant /var/lib/redis/data
   SHELL
 
   # Add Redis docker container
   config.vm.provision "docker" do |d|
-    d.pull_images "alpine:3.3"
+    d.pull_images "alpine:3.7"
     d.pull_images "redis:alpine"
     d.run "redis:alpine",
       args: "--restart=always -d --name redis -p 6379:6379 -v /var/lib/redis/data:/data"
@@ -91,12 +113,5 @@ Vagrant.configure(2) do |config|
   # config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yml", run: "always"
   # config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yml", rebuild: true, run: "always"
   config.vm.provision :docker_compose
-
-  # Install Docker Compose after Docker Engine
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    sudo -H pip install docker-compose
-    # Install the IBM Container plugin as vagrant
-    sudo -H -u ubuntu bash -c "echo Y | cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-linux_x64"
-  SHELL
 
 end
