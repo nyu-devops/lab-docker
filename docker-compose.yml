@@ -1,17 +1,25 @@
-redis:
-  image: redis:alpine
-  restart: always
-  hostname: redis
-  ports:
-    - "6379:6379"
-  volumes:
-    - /var/lib/redis/data:/data
+version: "3"
 
-app:
-  build: .
-  restart: always
-  hostname: hitcounter
-  ports:
-    - "5000:5000"
-  links:
-    - redis
+services:
+  app:
+    build: .
+    restart: always
+    hostname: hitcounter
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+    links:
+      - redis
+
+  redis:
+    image: redis:alpine
+    restart: always
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

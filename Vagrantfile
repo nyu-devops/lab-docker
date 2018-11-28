@@ -3,11 +3,13 @@
 
 # WARNING: You will need the following plugin:
 # vagrant plugin install vagrant-docker-compose
-
-unless Vagrant.has_plugin?("vagrant-docker-compose")
-  system("vagrant plugin install vagrant-docker-compose")
-  puts "Dependencies installed, please try the command again."
-  exit
+if Vagrant.plugins_enabled?
+  unless Vagrant.has_plugin?('vagrant-docker-compose')
+    puts 'Plugin missing.'
+    system('vagrant plugin install vagrant-docker-compose')
+    puts 'Dependencies installed, please try the command again.'
+    exit
+  end
 end
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -19,6 +21,7 @@ Vagrant.configure(2) do |config|
 
   # config.vm.network "forwarded_port", guest: 80, host: 8080
   # expose port 8080 in the VM to 8080 on the host
+  config.vm.network "forwarded_port", guest: 8001, host: 8001, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: "127.0.0.1"
   config.vm.network "private_network", ip: "192.168.33.10"
@@ -30,6 +33,9 @@ Vagrant.configure(2) do |config|
     # Customize the amount of memory on the VM:
     vb.memory = "512"
     vb.cpus = 1
+    # Fixes some DNS issues on some networks
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
   end
 
   # Copy your .gitconfig file so that your git credentials are correct
@@ -37,13 +43,22 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "~/.gitconfig", destination: "~/.gitconfig"
   end
 
-  # Copy the ssh keys into the vm
+  # Copy your ssh keys for github so that your git credentials work
   if File.exists?(File.expand_path("~/.ssh/id_rsa"))
     config.vm.provision "file", source: "~/.ssh/id_rsa", destination: "~/.ssh/id_rsa"
   end
-
   if File.exists?(File.expand_path("~/.ssh/id_rsa.pub"))
     config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/id_rsa.pub"
+  end
+
+  # Copy your .vimrc file so that your VI editor looks right
+  if File.exists?(File.expand_path("~/.vimrc"))
+    config.vm.provision "file", source: "~/.vimrc", destination: "~/.vimrc"
+  end
+
+  # Copy your IBM Clouid API Key if you have one
+  if File.exists?(File.expand_path("~/.bluemix/apiKey.json"))
+    config.vm.provision "file", source: "~/.bluemix/apiKey.json", destination: "~/.bluemix/apiKey.json"
   end
 
   ######################################################################
@@ -54,64 +69,48 @@ Vagrant.configure(2) do |config|
     apt-get update
     apt-get install -y git zip tree python-pip python-dev
     apt-get -y autoremove
-    pip install --upgrade pip
-
-    echo "\n******************************"
-    echo " Installing Bluemix CLI"
-    echo "******************************\n"
-    wget -q -O - https://clis.ng.bluemix.net/download/bluemix-cli/latest/linux64 | tar xzv
-    cd Bluemix_CLI/
-    ./install_bluemix_cli
-    cd ..
-    rm -fr Bluemix_CLI/
-    bluemix config --usage-stats-collect false
-    # Install container plugins
-    sudo -H -u vagrant bash -c "bx plugin install container-registry -r Bluemix"
-    sudo -H -u vagrant bash -c "bx plugin install container-service -r Bluemix"
-    # Prove they got installed
-    sudo -H -u vagrant bash -c "bx plugin show container-registry"
-    sudo -H -u vagrant bash -c "bx plugin show container-service"
-
-    # Install Kubernetes kubectl
-    echo "\n******************************"
-    echo " Installing KubeCTL"
-    echo "******************************\n"
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    chmod +x ./kubectl
-    sudo mv ./kubectl /usr/local/bin/kubectl
-
-    # Make vi look nice
-    sudo -H -u vagrant echo "colorscheme desert" > ~/.vimrc
     # Install app dependencies
-    echo "\n******************************"
-    echo " Installing App Dependencies"
-    echo "******************************\n"
     cd /vagrant
-    sudo pip install -r requirements.txt
+    pip install -r requirements.txt
   SHELL
 
   ######################################################################
-  # Add Redis docker container
+  # Add a few docker images and run Redis
   ######################################################################
-  config.vm.provision "shell", inline: <<-SHELL
-    # Prepare Redis data share
-    sudo mkdir -p /var/lib/redis/data
-    sudo chown vagrant:vagrant /var/lib/redis/data
-  SHELL
-
-  # Add Redis docker container
   config.vm.provision "docker" do |d|
     d.pull_images "alpine:3.7"
+    d.pull_images "ubuntu"
     d.pull_images "redis:alpine"
     d.run "redis:alpine",
-      args: "--restart=always -d --name redis -p 6379:6379 -v /var/lib/redis/data:/data"
+      args: "--restart=always -d --name redis -p 6379:6379 -v redis_volume:/data"
   end
 
   # Add Docker compose
-  # Note: you need to install the vagrant-docker-compose or this will fail!
-  # vagrant plugin install vagrant-docker-compose
-  # config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yml", run: "always"
-  # config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yml", rebuild: true, run: "always"
   config.vm.provision :docker_compose
+  # config.vm.provision :docker_compose,
+  #   yml: "/vagrant/docker-compose.yml",
+  #   rebuild: true,
+  #   run: "always"
+
+  ######################################################################
+  # Setup an IBM Cloud and Kubernetes environment
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "\n************************************"
+    echo " Installing IBM Cloud CLI..."
+    echo "************************************\n"
+    # Install IBM Cloud CLI as Vagrant user
+    sudo -H -u vagrant sh -c 'curl -sL http://ibm.biz/idt-installer | bash'
+    sudo -H -u vagrant sh -c 'ibmcloud config --usage-stats-collect false'
+    sudo -H -u vagrant sh -c "echo 'source <(kubectl completion bash)' >> ~/.bashrc"
+    sudo -H -u vagrant sh -c "echo alias ic=/usr/local/bin/ibmcloud >> ~/.bash_aliases"
+    echo "\n"
+    echo "\n************************************"
+    echo " For the Kubernetes Dashboard use:"
+    echo " kubectl proxy --address='0.0.0.0'"
+    echo "************************************\n"
+    # Prove that plug-ins are installed as vagrant user
+    sudo -H -u vagrant bash -c "bx plugin list"
+  SHELL
 
 end

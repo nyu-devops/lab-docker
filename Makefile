@@ -27,7 +27,7 @@ push:
 
 clean:
 	$(info Checking for untagged images)
-	docker rmi $$(docker images -q -f dangling=true)
+	docker images prune
 
 run:
 	$(info Running $(IMAGE_NAME) Service...)
