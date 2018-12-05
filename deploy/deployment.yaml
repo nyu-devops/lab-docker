@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: lab-docker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: lab-docker
+  template:
+    metadata:
+      labels:
+        run: lab-docker
+    spec:
+      containers:
+      - image: registry.ng.bluemix.net/nyu_edu/lab-docker:latest
+        imagePullPolicy: IfNotPresent
+        name: lab-docker
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+      restartPolicy: Always
