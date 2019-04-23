@@ -19,7 +19,7 @@ import sys
 import logging
 from redis import Redis
 from redis.exceptions import ConnectionError
-from flask import Flask, jsonify, json
+from flask import Flask, jsonify, json, abort
 
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '5000')
@@ -30,7 +30,7 @@ redis_server = None
 
 # GET /
 @app.route('/')
-def Welcome():
+def index():
     ''' Home Page '''
     return app.send_static_file('index.html')
 
@@ -38,16 +38,22 @@ def Welcome():
 @app.route('/counter', methods=['GET'])
 def get_counter():
     ''' get the counter '''
-    redis_server.incr('counter')
-    count = redis_server.get('counter')
+    try:
+        redis_server.incr('counter')
+        count = redis_server.get('counter')
+    except:
+        abort(404, "Redis service not found")
     return jsonify(counter=count), 200
 
 # POST /counter
 @app.route('/counter', methods=['POST'])
 def set_counter():
     ''' Set the counter '''
-    redis_server.set('counter', 0)
-    count = redis_server.get('counter')
+    try:
+        redis_server.set('counter', 0)
+        count = redis_server.get('counter')
+    except:
+        abort(404, "Redis service not found")
     return jsonify(counter=count), 201
 
 # Initialize Redis
