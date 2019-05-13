@@ -110,15 +110,15 @@ docker build -t hello-service:v1 .
 
 ## Create a Deployment
 ```
-kubectl run hello-service --image=hello-service:v1 --port=5000
+kubectl create deployment hello-service --image=hello-service:v1
 ```
 
 ## Create a Service
 ```
-kubectl expose deployment hello-service --type=LoadBalancer
+kubectl expose deployment hello-service --type=LoadBalancer --port=5000
 ```
 
-Get the service in a  browser with:
+Get the service in a browser with:
 ```
 minikube service hello-service
 ```
