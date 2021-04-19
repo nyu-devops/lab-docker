@@ -1,25 +1,34 @@
 version: "3"
 
 services:
+
   app:
     build: .
-    restart: always
+    image: hitcounter:1.0
+    container_name: hitcounter
     hostname: hitcounter
     ports:
-      - "5000:5000"
+      - "8080:8080"
+    environment:
+      DATABASE_URI: "redis://redis:6379/0"
     depends_on:
       - redis
-    links:
-      - redis
+    networks:
+      - web
 
   redis:
-    image: redis:alpine
+    image: redis:6-alpine
     restart: always
     hostname: redis
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - web
 
 volumes:
   redis-data:
+
+networks:
+  web:
