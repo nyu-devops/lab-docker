@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 ######################################################################
-# Kubernetes Minikube Environment
+# Virtual Development Environment for Python 3 with Docker
 ######################################################################
 Vagrant.configure(2) do |config|
   # config.vm.box = "ubuntu/bionic64"
@@ -75,8 +75,7 @@ Vagrant.configure(2) do |config|
     apt-get upgrade python3
     
     # install docker-compose
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.29.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
+    pip3 install docker-compose
 
     # Create a Python3 Virtual Environment and Activate it in .profile
     sudo -H -u vagrant sh -c 'python3 -m venv ~/venv'
