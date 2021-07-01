@@ -24,7 +24,6 @@ import os
 import logging
 from unittest import TestCase
 from unittest.mock import patch
-from flask_api import status  # HTTP Status Codes
 from service import app, DATABASE_URI
 from service.models import Counter
 

@@ -16,82 +16,12 @@ Redis Counter Demo in Docker
 """
 import os
 from flask import jsonify, json, abort, request, url_for
-from flask_api import status  # HTTP Status Codes
-from . import app
+from . import app, status  # HTTP Status Codes
 from service import DATABASE_URI
 from .models import Counter, DatabaseConnectionError
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 PORT = os.getenv("PORT", "8080")
-
-######################################################################
-#   E R R O R   H A N D L E R S
-######################################################################
-@app.errorhandler(status.HTTP_503_SERVICE_UNAVAILABLE)
-def service_unavailable(error):
-    """ Handles unexpected server error with 503_SERVICE_UNAVAILABLE """
-    message = str(error)
-    app.logger.error(message)
-    return (
-        jsonify(
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            error="Service is unavailable",
-            message=message,
-        ),
-        status.HTTP_503_SERVICE_UNAVAILABLE,
-    )
-
-
-@app.errorhandler(status.HTTP_400_BAD_REQUEST)
-def bad_request(error):
-    """ Handles bad reuests with 400_BAD_REQUEST """
-    app.logger.warning(str(error))
-    return (
-        jsonify(
-            status=status.HTTP_400_BAD_REQUEST, error="Bad Request", message=str(error)
-        ),
-        status.HTTP_400_BAD_REQUEST,
-    )
-
-
-@app.errorhandler(status.HTTP_404_NOT_FOUND)
-def not_found(error):
-    """ Handles resources not found with 404_NOT_FOUND """
-    app.logger.warning(str(error))
-    return (
-        jsonify(
-            status=status.HTTP_404_NOT_FOUND, error="Not Found", message=str(error)
-        ),
-        status.HTTP_404_NOT_FOUND,
-    )
-
-
-@app.errorhandler(status.HTTP_405_METHOD_NOT_ALLOWED)
-def method_not_supported(error):
-    """ Handles unsuppoted HTTP methods with 405_METHOD_NOT_SUPPORTED """
-    app.logger.warning(str(error))
-    return (
-        jsonify(
-            status=status.HTTP_405_METHOD_NOT_ALLOWED,
-            error="Method not Allowed",
-            message=str(error),
-        ),
-        status.HTTP_405_METHOD_NOT_ALLOWED,
-    )
-
-
-@app.errorhandler(status.HTTP_500_INTERNAL_SERVER_ERROR)
-def internal_server_error(error):
-    """ Handles unexpected server error with 500_SERVER_ERROR """
-    app.logger.error(str(error))
-    return (
-        jsonify(
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            error="Internal Server Error",
-            message=str(error),
-        ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR,
-    )
 
 ############################################################
 # Health Endpoint

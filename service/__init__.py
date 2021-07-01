@@ -29,7 +29,7 @@ DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 app = Flask(__name__)
 
 # Import the routes After the Flask app is created
-from service import routes, models
+from service import routes, models, error_handlers
 
 # Set up logging for production
 app.logger.propagate = False
