@@ -1,6 +1,6 @@
 # lab-docker
 
-[![Build Status](https://travis-ci.org/nyu-devops/lab-docker.svg?branch=master)](https://travis-ci.org/devops/lab-docker)
+[![Build Status](https://travis-ci.com/nyu-devops/lab-docker.svg?branch=master)](https://travis-ci.com/nyu-devops/lab-docker)
 
 What is Docker? How can Docker containers help you build and deploy a cloud native solution as micro-services? This lab will teach you what-you-need-to-know to get started building and running Docker Containers. It covers what Docker is, and more importantly, what Docker is not! You will learn how to deploy and run existing Docker community images, how to create your own Docker images, and how to connect containers together using Docker Compose. If you want to know what all this fuss about containers is about, come to this lab and spin up a few containers and see for yourself why everyone is adopting Docker.
 
