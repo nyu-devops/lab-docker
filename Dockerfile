@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY service/ ./service/
 
 # Switch to a non-root user
-RUN useradd vagrant && chown -R vagrant /app
+RUN useradd --uid 1000 vagrant && chown -R vagrant /app
 USER vagrant
 
 # Expose any ports the app is expecting in the environment
@@ -18,4 +18,5 @@ ENV PORT 8080
 EXPOSE $PORT
 
 ENV GUNICORN_BIND 0.0.0.0:$PORT
-CMD ["gunicorn", "--log-level=info", "service:app"]
+ENTRYPOINT ["gunicorn"]
+CMD ["--log-level=info", "service:app"]
