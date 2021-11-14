@@ -81,19 +81,30 @@ class Counter(object):
     @classmethod
     def all(cls):
         """ Returns all of the counters """
-        return [dict(name=key, counter=int(cls.redis.get(key))) for key in cls.redis.keys('*')]
+        try:
+            counters = [dict(name=key, counter=int(cls.redis.get(key))) for key in cls.redis.keys('*')]
+        except Exception as err:
+            raise DatabaseConnectionError(err)
+        return counters
 
     @classmethod
     def find(cls, name):
         """ Finds a counter with the name or returns None """
-        count = cls.redis.get(name)
-        if count:
-            return Counter(name, count)
-        return None
+        counter = None
+        try:
+            count = cls.redis.get(name)
+            if count:
+                counter = Counter(name, count)
+        except Exception as err:
+            raise DatabaseConnectionError(err)
+        return counter
 
     @classmethod
     def remove_all(cls):
-        cls.redis.flushall()
+        try:
+            cls.redis.flushall()
+        except Exception as err:
+            raise DatabaseConnectionError(err)
 
     ######################################################################
     #  R E D I S   D A T A B A S E   C O N N E C T I O N   M E T H O D S
