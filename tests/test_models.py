@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016, 2020 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2021 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -138,12 +138,6 @@ class CounterTests(TestCase):
         """ Handle failed connection """
         ping_mock.side_effect = ConnectionError()
         self.assertRaises(DatabaseConnectionError, self.counter.connect, DATABASE_URI)
-
-    @patch.dict(os.environ, {"DATABASE_URI": "redis://:@localhost:6379/0"})
-    def test_environment_uri(self):
-        """ Get DATABASE_URI from environment """
-        self.counter.connect()
-        self.assertTrue(Counter.test_connection)
 
     @patch.dict(os.environ, {"DATABASE_URI": ""})
     def test_missing_environment_creds(self):
