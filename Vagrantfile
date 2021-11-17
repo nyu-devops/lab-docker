@@ -13,7 +13,7 @@ Vagrant.configure(2) do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.56.10"
 
   # Mac users can comment this next line out but
   # Windows users need to change the permission of files and directories
@@ -25,7 +25,7 @@ Vagrant.configure(2) do |config|
   config.vm.provider "virtualbox" do |vb|
     # Customize the amount of memory on the VM:
     vb.memory = "1024"
-    vb.cpus = 1
+    vb.cpus = 2
     # Fixes some DNS issues on some networks
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
@@ -70,12 +70,9 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     # Install Python 3 and dev tools 
     apt-get update
-    apt-get install -y git vim tree wget jq build-essential python3-dev python3-pip python3-venv apt-transport-https
+    apt-get install -y git vim tree wget jq python3-dev python3-pip python3-venv apt-transport-https
     apt-get upgrade python3
     
-    # install docker-compose
-    pip3 install docker-compose
-
     # Create a Python3 Virtual Environment and Activate it in .profile
     sudo -H -u vagrant sh -c 'python3 -m venv ~/venv'
     sudo -H -u vagrant sh -c 'echo ". ~/venv/bin/activate" >> ~/.profile'
@@ -83,12 +80,15 @@ Vagrant.configure(2) do |config|
     # Install app dependencies in virtual environment as vagrant user
     sudo -H -u vagrant sh -c '. ~/venv/bin/activate && 
       cd /vagrant &&
-      pip install -U pip && 
-      pip install wheel &&
+      pip install -U pip wheel && 
+      pip install docker-compose &&
       pip install -r requirements.txt'
 
     # Check versions to prove that everything is installed
     python3 --version
+
+    # Create .env file if it doesn't exist
+    sudo -H -u vagrant sh -c 'cd /vagrant && if [ ! -f .env ]; then cp dot-env-example .env; fi'    
   SHELL
 
   ############################################################
@@ -96,7 +96,7 @@ Vagrant.configure(2) do |config|
   ############################################################
   config.vm.provision "docker" do |d|
     d.pull_images "alpine"
-    d.pull_images "python:3.8-slim"
+    d.pull_images "python:3.9-slim"
     d.pull_images "redis:6-alpine"
     d.run "redis:6-alpine",
       args: "--restart=always -d --name redis -p 6379:6379 -v redis:/data"

@@ -46,7 +46,11 @@ def index():
 @app.route("/counters", methods=["GET"])
 def list_counters():
     app.logger.info("Request to list all counters...")
-    counters = Counter.all()
+    try:
+        counters = Counter.all()
+    except DatabaseConnectionError as err:
+        abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
+
     return jsonify(counters)
 
 
@@ -59,7 +63,7 @@ def read_counters(name):
 
     try:
         counter = Counter.find(name)
-    except Exception as err:
+    except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
     if not counter:
@@ -75,13 +79,13 @@ def read_counters(name):
 @app.route("/counters/<name>", methods=["POST"])
 def create_counters(name):
     app.logger.info("Request to Create counter...")
-    counter = Counter.find(name)
-    if counter is not None:
-        return jsonify(code=409, error="Counter already exists"), 409
-
     try:
+        counter = Counter.find(name)
+        if counter is not None:
+            return jsonify(code=409, error="Counter already exists"), 409
+
         counter = Counter(name)
-    except Exception as err:
+    except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
     location_url = url_for('read_counters', name=name, _external=True)
@@ -94,13 +98,13 @@ def create_counters(name):
 @app.route("/counters/<name>", methods=["PUT"])
 def update_counters(name):
     app.logger.info("Request to Update counter...")
-    counter = Counter.find(name)
-    if counter is None:
-        return jsonify(code=404, error="Counter {} does not exist".format(name)), 404
-
     try:
+        counter = Counter.find(name)
+        if counter is None:
+            return jsonify(code=404, error="Counter {} does not exist".format(name)), 404
+
         count = counter.increment()
-    except Exception as err:
+    except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
     return jsonify(name=name, counter=count)
@@ -112,12 +116,11 @@ def update_counters(name):
 @app.route("/counters/<name>", methods=["DELETE"])
 def delete_counters(name):
     app.logger.info("Request to Delete counter...")
-    counter = Counter.find(name)
-    
     try:
+        counter = Counter.find(name)
         if counter:
             del counter.value
-    except Exception as err:
+    except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
     return "", status.HTTP_204_NO_CONTENT
@@ -133,5 +136,5 @@ def init_db():
         app.logger.info("Initializing the Redis database")
         Counter.connect(DATABASE_URI)
         app.logger.info("Connected!")
-    except Exception as err:
+    except DatabaseConnectionError as err:
         app.logger.error(str(err))

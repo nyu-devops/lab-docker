@@ -4,18 +4,6 @@ from . import app, status
 ######################################################################
 # Error Handlers
 ######################################################################
-@app.errorhandler(status.HTTP_400_BAD_REQUEST)
-def bad_request(error):
-    """ Handles bad reuests with 400_BAD_REQUEST """
-    message = str(error)
-    app.logger.warning(message)
-    return (
-        jsonify(
-            status=status.HTTP_400_BAD_REQUEST, error="Bad Request", message=message
-        ),
-        status.HTTP_400_BAD_REQUEST,
-    )
-
 
 @app.errorhandler(status.HTTP_404_NOT_FOUND)
 def not_found(error):
@@ -30,7 +18,7 @@ def not_found(error):
 
 @app.errorhandler(status.HTTP_405_METHOD_NOT_ALLOWED)
 def method_not_supported(error):
-    """ Handles unsuppoted HTTP methods with 405_METHOD_NOT_SUPPORTED """
+    """ Handles unsupported HTTP methods with 405_METHOD_NOT_SUPPORTED """
     message = str(error)
     app.logger.warning(message)
     return (
@@ -40,21 +28,6 @@ def method_not_supported(error):
             message=message,
         ),
         status.HTTP_405_METHOD_NOT_ALLOWED,
-    )
-
-
-@app.errorhandler(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-def mediatype_not_supported(error):
-    """ Handles unsuppoted media requests with 415_UNSUPPORTED_MEDIA_TYPE """
-    message = str(error)
-    app.logger.warning(message)
-    return (
-        jsonify(
-            status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            error="Unsupported media type",
-            message=message,
-        ),
-        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
     )
 
 

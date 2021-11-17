@@ -25,7 +25,7 @@ import logging
 from unittest import TestCase
 from unittest.mock import patch
 from service import app, DATABASE_URI
-from service.models import Counter
+from service.models import Counter, DatabaseConnectionError
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 
@@ -147,11 +147,11 @@ class ServiceTest(TestCase):
     #  T E S T   E R R O R   H A N D L E R S
     ######################################################################
 
-    @patch("service.routes.Counter.find")
-    def test_failed_get_request(self, value_mock):
+    @patch("service.routes.Counter.redis.get")
+    def test_failed_get_request(self, redis_mock):
         """ Error handlers for failed GET """
-        value_mock.return_value = 0
-        value_mock.side_effect = Exception()
+        redis_mock.return_value = 0
+        redis_mock.side_effect = DatabaseConnectionError()
         resp = self.app.get("/counters/foo")
         self.assertEqual(resp.status_code, 503)
     
@@ -159,7 +159,7 @@ class ServiceTest(TestCase):
     def test_failed_update_request(self, value_mock):
         """ Error handlers for failed UPDATE """
         value_mock.return_value = 0
-        value_mock.side_effect = Exception()
+        value_mock.side_effect = DatabaseConnectionError()
         self.test_create_counter()
         resp = self.app.put("/counters/foo")
         self.assertEqual(resp.status_code, 503)
@@ -168,7 +168,23 @@ class ServiceTest(TestCase):
     def test_failed_post_request(self, value_mock):
         """ Error handlers for failed POST """
         value_mock.return_value = 0
-        value_mock.side_effect = Exception()
+        value_mock.side_effect = DatabaseConnectionError()
         resp = self.app.post("/counters/foo")
         self.assertEqual(resp.status_code, 503)
 
+    @patch("service.routes.Counter.redis.keys")
+    def test_failed_list_request(self, redis_mock):
+        """ Error handlers for failed LIST """
+        redis_mock.return_value = 0
+        redis_mock.side_effect = Exception()
+        resp = self.app.get("/counters")
+        self.assertEqual(resp.status_code, 503)
+
+    def test_failed_delete_request(self):
+        """ Error handlers for failed DELETE """
+        self.test_create_counter()
+        with patch("service.routes.Counter.redis.get") as redis_mock:
+            redis_mock.return_value = 0
+            redis_mock.side_effect = DatabaseConnectionError()
+            resp = self.app.delete("/counters/foo")
+            self.assertEqual(resp.status_code, 503)
