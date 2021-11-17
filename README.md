@@ -4,13 +4,13 @@
 
 What is Docker? How can Docker containers help you build and deploy a cloud native solution as micro-services? This lab will teach you what-you-need-to-know to get started building and running Docker Containers. It covers what Docker is, and more importantly, what Docker is not! You will learn how to deploy and run existing Docker community images, how to create your own Docker images, and how to connect containers together using Docker Compose. If you want to know what all this fuss about containers is about, come to this lab and spin up a few containers and see for yourself why everyone is adopting Docker.
 
-This lab is an example of how to create a Python / Flask / Redis app using Docker on Bluemix
+This lab is an example of how to create a Python / Flask / Redis app using Docker.
 
 ## Setting up your Development Environment
 
 We use Vagrant, VirtualBox, and Docker for virtualizing our development environment. Vagrant is technology that allows you to quickly provision and configure Linux virtual machines on your computer. VirtualBox is a hypervisor like VMware Fusion orr Parallels Desktop that hosts virtual machines. Docker is technology that will run multiple containers within a single Linux host machine. Together they make a powerful development environment that mimics multiple servers in a production environment.
 
-If you are using 2020 or later Mac with an Apple M1 Silicon processor you cannot use VirtualBox because it only runs on Intel base computers and Apple Silicon is ARM based. You should install Docker Desktop instead.
+If you are using 2020 or later Mac with an **Apple M1 Silicon** processor you cannot use VirtualBox because it only runs on Intel base computers and Apple Silicon is ARM based. You should install Docker Desktop instead.
 
 ### Intel x86 based install
 
@@ -20,7 +20,7 @@ To get started on Intel, download VirtualBox and Vagrant if you don't have them 
 
 - Download [Vagrant](https://www.vagrantup.com) - Used to auto-provision VMs containing your complete dev environment
 
-Install VirtualBox and then Vagrant. 
+Install VirtualBox and then Vagrant.
 
 ```sh
 git clone https://github.com/nyu-devops/lab-docker.git
@@ -44,4 +44,6 @@ vagrant up --provider=docker
 vagrant ssh
 ```
 
-Note the difference between starting vagrant with DOcker is to add `--provider=docker` to the `vagrant up` command.
+Note the difference between starting vagrant with Docker is to add `--provider=docker` to the `vagrant up` command. If you only have Docker installed and not VirtualBox then you can omit the `--provider` option since you only have one provider on your computer. This is mostly needed if you have more than one provider.
+
+This repo is part of the NYU masters class: **CSCI-GA.2820 DevOps and Agile Methodologies** created by John Rofrano.
