@@ -1,0 +1,45 @@
+// Docker-in-docker setup for lab environment
+{
+	"name": "Docker-in-Docker",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "..",
+    },
+
+	// Set up the workspace environment
+    "workspaceFolder": "/app",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind,consistency=delegated",
+    "runArgs": ["-h","nyu", "--name", "lab-docker"],
+    "remoteEnv": {
+      "FLASK_ENV": "development",
+      "FLASK_APP": "service:app",
+      "PORT": "8000",
+	  "GUNICORN_BIND": "0.0.0.0:8000"
+    },
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"yzhang.markdown-all-in-one",
+		"bierner.github-markdown-preview",
+		"hnw.vscode-auto-open-markdown-preview",
+		"DavidAnson.vscode-markdownlint",
+		"donjayamanne.githistory",
+		"njpwerner.autodocstring",
+		"redhat.vscode-yaml",
+		"wholroyd.jinja"
+	],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "bash /app/.devcontainer/scripts/setup.sh",
+
+	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode",
+	"features": {
+		"docker-in-docker": "latest"
+	}
+}
