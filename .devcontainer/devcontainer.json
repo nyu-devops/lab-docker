@@ -13,8 +13,8 @@
     "remoteEnv": {
       "FLASK_ENV": "development",
       "FLASK_APP": "service:app",
-      "PORT": "8000",
-	  "GUNICORN_BIND": "0.0.0.0:8000"
+      "PORT": "8080",
+	  "GUNICORN_BIND": "0.0.0.0:8080"
     },
 
 	// Add the IDs of extensions you want installed when the container is created.
@@ -32,7 +32,7 @@
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [8080],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "bash /app/.devcontainer/scripts/setup.sh",
