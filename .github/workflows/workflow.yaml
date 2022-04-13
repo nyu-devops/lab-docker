@@ -36,5 +36,6 @@ jobs:
           DATABASE_URI: "redis://redis:6379"
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v2  
-  
+        uses: codecov/codecov-action@v2
+        with:
+          version: "v0.1.13"
