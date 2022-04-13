@@ -4,6 +4,7 @@ Thumbs.db
 
 # Unwanted files
 Dockerfile
+.devcontainer/
 .vagrant
 .vscode/
 .git/
