@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016, 2020 John J. Rofrano. All Rights Reserved.
+# Copyright status.HTTP_201_CREATED6, 2020 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from service import app, DATABASE_URI
 from service.models import Counter, DatabaseConnectionError
+from service.common import status
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 
@@ -65,37 +66,37 @@ class ServiceTest(TestCase):
     def test_index(self):
         """ It should return the home page """
         resp = self.app.get("/")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, status.HTTP_200_OK)
 
     def test_health(self):
         """ It should get the health endpoint """
         resp = self.app.get("/health")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["status"], "OK")
 
     def test_create_counter(self):
         """ It should Create a counter """
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, 201)
+        self.assertEquals(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
         self.assertEqual(data["counter"], 0)
 
     def test_counter_already_exists(self):
         """ It should not Counter that already exists """
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, 201)
+        self.assertEquals(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, 409)
+        self.assertEquals(resp.status_code, status.HTTP_409_CONFLICT)
 
     def test_list_counters(self):
         """ It should Get multiple counters """
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, 201)
+        self.assertEquals(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.post("/counters/bar")
-        self.assertEquals(resp.status_code, 201)
+        self.assertEquals(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.get("/counters")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 2)
 
@@ -103,30 +104,30 @@ class ServiceTest(TestCase):
         """ It should Get a counter """
         self.test_create_counter()
         resp = self.app.get("/counters/foo")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["counter"], 0)
 
     def test_get_counter_not_found(self):
         """ It should not return a counter that does not exist """
         resp = self.app.get("/counters/foo")
-        self.assertEquals(resp.status_code, 404)
+        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_counter_not_found(self):
         """ It should not update a counter that does not exist """
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, 404)
+        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_increment_counter(self):
         """ It should Increment the counter """
         self.test_get_counter()
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["counter"], 1)
 
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         logging.debug(data)
         self.assertEqual(data["counter"], 2)
@@ -135,12 +136,12 @@ class ServiceTest(TestCase):
         """ It should Delete the counter """
         self.test_create_counter()
         resp = self.app.delete("/counters/foo")
-        self.assertEquals(resp.status_code, 204)
+        self.assertEquals(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_method_not_allowed(self):
         """ It should not allow usuported Methods """
         resp = self.app.post("/counters")
-        self.assertEquals(resp.status_code, 405)
+        self.assertEquals(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
     ######################################################################
@@ -153,7 +154,7 @@ class ServiceTest(TestCase):
         redis_mock.return_value = 0
         redis_mock.side_effect = DatabaseConnectionError()
         resp = self.app.get("/counters/foo")
-        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
     
     @patch("service.models.Counter.increment")
     def test_failed_update_request(self, value_mock):
@@ -162,7 +163,7 @@ class ServiceTest(TestCase):
         value_mock.side_effect = DatabaseConnectionError()
         self.test_create_counter()
         resp = self.app.put("/counters/foo")
-        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     @patch("service.models.Counter.__init__")
     def test_failed_post_request(self, value_mock):
@@ -170,7 +171,7 @@ class ServiceTest(TestCase):
         value_mock.return_value = 0
         value_mock.side_effect = DatabaseConnectionError()
         resp = self.app.post("/counters/foo")
-        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     @patch("service.routes.Counter.redis.keys")
     def test_failed_list_request(self, redis_mock):
@@ -178,7 +179,7 @@ class ServiceTest(TestCase):
         redis_mock.return_value = 0
         redis_mock.side_effect = Exception()
         resp = self.app.get("/counters")
-        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def test_failed_delete_request(self):
         """ It should handle Error for failed DELETE """
@@ -187,4 +188,4 @@ class ServiceTest(TestCase):
             redis_mock.return_value = 0
             redis_mock.side_effect = DatabaseConnectionError()
             resp = self.app.delete("/counters/foo")
-            self.assertEqual(resp.status_code, 503)
+            self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
