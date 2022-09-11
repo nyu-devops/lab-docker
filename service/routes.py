@@ -16,8 +16,8 @@ Redis Counter Demo in Docker
 """
 import os
 from flask import jsonify, json, abort, request, url_for
-from . import app, status  # HTTP Status Codes
-from service import DATABASE_URI
+from service.common import status  # HTTP Status Codes
+from service import app, DATABASE_URI
 from .models import Counter, DatabaseConnectionError
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
