@@ -6,6 +6,7 @@ from service.common import status
 # Error Handlers
 ######################################################################
 
+
 @app.errorhandler(status.HTTP_404_NOT_FOUND)
 def not_found(error):
     """ Handles resources not found with 404_NOT_FOUND """
@@ -45,6 +46,7 @@ def internal_server_error(error):
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
+
 
 @app.errorhandler(status.HTTP_503_SERVICE_UNAVAILABLE)
 def service_unavailable(error):

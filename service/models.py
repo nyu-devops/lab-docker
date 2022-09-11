@@ -17,7 +17,6 @@
 Counter Model
 """
 import os
-import re
 import logging
 from redis import Redis
 from redis.exceptions import ConnectionError
@@ -44,7 +43,7 @@ class Counter(object):
 
     redis = None
 
-    def __init__(self, name: str="hits", value: int=None):
+    def __init__(self, name: str = "hits", value: int = None):
         """ Constructor """
         self.name = name
         if not value:

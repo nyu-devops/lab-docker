@@ -16,8 +16,8 @@
 Package for the application models and service routes
 """
 import os
-import logging
 from flask import Flask
+from service.common import log_handlers
 
 # NOTE: Do not change the order of this code
 # The Flask app must be created
@@ -29,16 +29,12 @@ DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 app = Flask(__name__)
 
 # Import the routes After the Flask app is created
-from service import routes, models
-from service.common import error_handlers
+# pylint: disable=wrong-import-position, wrong-import-order, cyclic-import
+from service import routes, models          # noqa: F401, E402
+from service.common import error_handlers   # noqa: F401, E402
 
 # Set up logging for production
-app.logger.propagate = False
-if __name__ != "__main__":
-    gunicorn_logger = logging.getLogger("gunicorn.error")
-    if gunicorn_logger:
-        app.logger.handlers = gunicorn_logger.handlers
-        app.logger.setLevel(gunicorn_logger.level)
+log_handlers.init_logging(app, "gunicorn.error")
 
 app.logger.info(70 * "*")
 app.logger.info("  H I T   C O U N T E R   S E R V I C E  ".center(70, "*"))

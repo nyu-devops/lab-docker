@@ -24,13 +24,14 @@ import os
 import logging
 from unittest import TestCase
 from unittest.mock import patch
-from service import app, DATABASE_URI
+from service import app
 from service.models import Counter, DatabaseConnectionError
 from service.common import status
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 
 # logging.disable(logging.CRITICAL)
+
 
 ######################################################################
 #  T E S T   C A S E S
@@ -143,7 +144,6 @@ class ServiceTest(TestCase):
         resp = self.app.post("/counters")
         self.assertEquals(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
     ######################################################################
     #  T E S T   E R R O R   H A N D L E R S
     ######################################################################
@@ -155,7 +155,7 @@ class ServiceTest(TestCase):
         redis_mock.side_effect = DatabaseConnectionError()
         resp = self.app.get("/counters/foo")
         self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
-    
+
     @patch("service.models.Counter.increment")
     def test_failed_update_request(self, value_mock):
         """ It should handle Error for failed UPDATE """

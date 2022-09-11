@@ -31,6 +31,7 @@ DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 
 logging.disable(logging.CRITICAL)
 
+
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
