@@ -3,10 +3,9 @@
 	"name": "Docker-in-Docker",
     "build": {
         "dockerfile": "Dockerfile",
-        "context": "..",
+        "context": ".."
     },
-
-	// Set up the workspace environment
+	"remoteUser": "vscode",
     "workspaceFolder": "/app",
     "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind,consistency=delegated",
     "runArgs": ["-h","nyu", "--name", "lab-docker"],
@@ -16,8 +15,6 @@
       "PORT": "8080",
 	  "GUNICORN_BIND": "0.0.0.0:8080"
     },
-
-	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",
@@ -28,17 +25,12 @@
 		"donjayamanne.githistory",
 		"njpwerner.autodocstring",
 		"redhat.vscode-yaml",
-		"wholroyd.jinja"
+		"rangav.vscode-thunder-client",
+		"wholroyd.jinja",
+		"ms-azuretools.vscode-docker"
 	],
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [8080],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
+	// "forwardPorts": [8080],
 	"postCreateCommand": "bash /app/.devcontainer/scripts/setup.sh",
-
-	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "vscode",
 	"features": {
 		"docker-in-docker": "latest"
 	}

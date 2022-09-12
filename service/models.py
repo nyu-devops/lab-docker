@@ -17,21 +17,20 @@
 Counter Model
 """
 import os
-import re
 import logging
 from redis import Redis
-from redis.exceptions import ConnectionError
+from redis.exceptions import ConnectionError as RedisConnectionError
 
 logger = logging.getLogger(__name__)
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://localhost:6379")
 
 
-class DatabaseConnectionError(ConnectionError):
-    pass
+class DatabaseConnectionError(RedisConnectionError):
+    """Generic Exception for Redis database connection errors"""
 
 
-class Counter(object):
+class Counter:
     """An integer counter that is persisted in Redis
 
     You can establish a connection to Redis using an environment
@@ -44,8 +43,8 @@ class Counter(object):
 
     redis = None
 
-    def __init__(self, name: str="hits", value: int=None):
-        """ Constructor """
+    def __init__(self, name: str = "hits", value: int = None):
+        """Constructor"""
         self.name = name
         if not value:
             self.value = 0
@@ -54,24 +53,25 @@ class Counter(object):
 
     @property
     def value(self):
-        """ Returns the current value of the counter """
+        """Returns the current value of the counter"""
         return int(Counter.redis.get(self.name))
 
     @value.setter
     def value(self, value):
-        """ Sets the value of the counter """
+        """Sets the value of the counter"""
         Counter.redis.set(self.name, value)
 
     @value.deleter
     def value(self):
-        """ Removes the counter fom the database """
+        """Removes the counter fom the database"""
         Counter.redis.delete(self.name)
 
     def increment(self):
-        """ Increments the current value of the counter by 1 """
+        """Increments the current value of the counter by 1"""
         return Counter.redis.incr(self.name)
 
     def serialize(self):
+        """Converts a counter into a dictionary"""
         return dict(name=self.name, counter=int(Counter.redis.get(self.name)))
 
     ######################################################################
@@ -80,31 +80,35 @@ class Counter(object):
 
     @classmethod
     def all(cls):
-        """ Returns all of the counters """
+        """Returns all of the counters"""
         try:
-            counters = [dict(name=key, counter=int(cls.redis.get(key))) for key in cls.redis.keys('*')]
+            counters = [
+                dict(name=key, counter=int(cls.redis.get(key)))
+                for key in cls.redis.keys("*")
+            ]
         except Exception as err:
-            raise DatabaseConnectionError(err)
+            raise DatabaseConnectionError(err) from err
         return counters
 
     @classmethod
     def find(cls, name):
-        """ Finds a counter with the name or returns None """
+        """Finds a counter with the name or returns None"""
         counter = None
         try:
             count = cls.redis.get(name)
             if count:
                 counter = Counter(name, count)
         except Exception as err:
-            raise DatabaseConnectionError(err)
+            raise DatabaseConnectionError(err) from err
         return counter
 
     @classmethod
     def remove_all(cls):
+        """Removes all of the keys in the database"""
         try:
             cls.redis.flushall()
         except Exception as err:
-            raise DatabaseConnectionError(err)
+            raise DatabaseConnectionError(err) from err
 
     ######################################################################
     #  R E D I S   D A T A B A S E   C O N N E C T I O N   M E T H O D S
@@ -112,13 +116,13 @@ class Counter(object):
 
     @classmethod
     def test_connection(cls):
-        """ Test connection by pinging the host """
+        """Test connection by pinging the host"""
         success = False
         try:
             cls.redis.ping()
             logger.info("Connection established")
             success = True
-        except ConnectionError:
+        except RedisConnectionError:
             logger.warning("Connection Error!")
         return success
 

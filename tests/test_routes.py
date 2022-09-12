@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016, 2020 John J. Rofrano. All Rights Reserved.
+# Copyright status.HTTP_201_CREATED6, 2020 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,38 +24,40 @@ import os
 import logging
 from unittest import TestCase
 from unittest.mock import patch
-from service import app, DATABASE_URI
+from service import app
 from service.models import Counter, DatabaseConnectionError
+from service.common import status
+
+# logging.disable(logging.CRITICAL)
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 
-# logging.disable(logging.CRITICAL)
 
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
 class ServiceTest(TestCase):
-    """ REST API Server Tests """
+    """REST API Server Tests"""
 
     @classmethod
     def setUpClass(cls):
-        """ This runs once before the entire test suite """
+        """This runs once before the entire test suite"""
         app.testing = True
         app.debug = False
 
     @classmethod
     def tearDownClass(cls):
-        """ This runs once after the entire test suite """
+        """This runs once after the entire test suite"""
         pass
 
     def setUp(self):
-        """ This runs before each test """
+        """This runs before each test"""
         Counter.connect(DATABASE_URI)
         Counter.remove_all()
         self.app = app.test_client()
 
     def tearDown(self):
-        """ This runs after each test """
+        """This runs after each test"""
         pass
 
     ######################################################################
@@ -63,85 +65,84 @@ class ServiceTest(TestCase):
     ######################################################################
 
     def test_index(self):
-        """ Get the home page """
+        """It should return the home page"""
         resp = self.app.get("/")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_health(self):
-        """ Get the health endpoint """
+        """It should get the health endpoint"""
         resp = self.app.get("/health")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["status"], "OK")
 
     def test_create_counter(self):
-        """ Create a counter """
+        """It should Create a counter"""
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, 201)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
         self.assertEqual(data["counter"], 0)
 
     def test_counter_already_exists(self):
-        """ Counter already exists """
+        """It should not Counter that already exists"""
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, 201)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, 409)
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
     def test_list_counters(self):
-        """ Get the counter """
+        """It should Get multiple counters"""
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, 201)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.post("/counters/bar")
-        self.assertEquals(resp.status_code, 201)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.get("/counters")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 2)
 
     def test_get_counter(self):
-        """ Get the counter """
+        """It should Get a counter"""
         self.test_create_counter()
         resp = self.app.get("/counters/foo")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["counter"], 0)
 
     def test_get_counter_not_found(self):
-        """ Test counter not found """
+        """It should not return a counter that does not exist"""
         resp = self.app.get("/counters/foo")
-        self.assertEquals(resp.status_code, 404)
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_counter_not_found(self):
-        """ Test counter not found """
+        """It should not update a counter that does not exist"""
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, 404)
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_increment_counter(self):
-        """ Increment the counter """
+        """It should Increment the counter"""
         self.test_get_counter()
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["counter"], 1)
 
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, 200)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         logging.debug(data)
         self.assertEqual(data["counter"], 2)
 
     def test_delete_counter(self):
-        """ Delete the counter """
+        """It should Delete the counter"""
         self.test_create_counter()
         resp = self.app.delete("/counters/foo")
-        self.assertEquals(resp.status_code, 204)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_method_not_allowed(self):
-        """ Test Method Not Allowed """
+        """It should not allow usuported Methods"""
         resp = self.app.post("/counters")
-        self.assertEquals(resp.status_code, 405)
-
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     ######################################################################
     #  T E S T   E R R O R   H A N D L E R S
@@ -149,42 +150,42 @@ class ServiceTest(TestCase):
 
     @patch("service.routes.Counter.redis.get")
     def test_failed_get_request(self, redis_mock):
-        """ Error handlers for failed GET """
+        """It should handle Error for failed GET"""
         redis_mock.return_value = 0
         redis_mock.side_effect = DatabaseConnectionError()
         resp = self.app.get("/counters/foo")
-        self.assertEqual(resp.status_code, 503)
-    
+        self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
     @patch("service.models.Counter.increment")
     def test_failed_update_request(self, value_mock):
-        """ Error handlers for failed UPDATE """
+        """It should handle Error for failed UPDATE"""
         value_mock.return_value = 0
         value_mock.side_effect = DatabaseConnectionError()
         self.test_create_counter()
         resp = self.app.put("/counters/foo")
-        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     @patch("service.models.Counter.__init__")
     def test_failed_post_request(self, value_mock):
-        """ Error handlers for failed POST """
+        """It should handle Error for failed POST"""
         value_mock.return_value = 0
         value_mock.side_effect = DatabaseConnectionError()
         resp = self.app.post("/counters/foo")
-        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     @patch("service.routes.Counter.redis.keys")
     def test_failed_list_request(self, redis_mock):
-        """ Error handlers for failed LIST """
+        """It should handle Error for failed LIST"""
         redis_mock.return_value = 0
         redis_mock.side_effect = Exception()
         resp = self.app.get("/counters")
-        self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def test_failed_delete_request(self):
-        """ Error handlers for failed DELETE """
+        """It should handle Error for failed DELETE"""
         self.test_create_counter()
         with patch("service.routes.Counter.redis.get") as redis_mock:
             redis_mock.return_value = 0
             redis_mock.side_effect = DatabaseConnectionError()
             resp = self.app.delete("/counters/foo")
-            self.assertEqual(resp.status_code, 503)
+            self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
