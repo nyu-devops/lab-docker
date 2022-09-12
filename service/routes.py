@@ -23,12 +23,13 @@ from .models import Counter, DatabaseConnectionError
 DEBUG = os.getenv("DEBUG", "False") == "True"
 PORT = os.getenv("PORT", "8080")
 
+
 ############################################################
 # Health Endpoint
 ############################################################
 @app.route("/health")
 def health():
-    """ Health Status """
+    """Health Status"""
     return jsonify(dict(status="OK")), status.HTTP_200_OK
 
 
@@ -37,15 +38,16 @@ def health():
 ############################################################
 @app.route("/")
 def index():
-    """ Home Page """
+    """Home Page"""
     return app.send_static_file("index.html")
+
 
 ############################################################
 # List counters
 ############################################################
 @app.route("/counters", methods=["GET"])
 def list_counters():
-    """ List counters """
+    """List counters"""
     app.logger.info("Request to list all counters...")
     try:
         counters = Counter.all()
@@ -60,7 +62,7 @@ def list_counters():
 ############################################################
 @app.route("/counters/<name>", methods=["GET"])
 def read_counters(name):
-    """ Read a counter """
+    """Read a counter"""
     app.logger.info("Request to Read counter: %s...", name)
 
     try:
@@ -80,7 +82,7 @@ def read_counters(name):
 ############################################################
 @app.route("/counters/<name>", methods=["POST"])
 def create_counters(name):
-    """ Create a counter """
+    """Create a counter"""
     app.logger.info("Request to Create counter...")
     try:
         counter = Counter.find(name)
@@ -91,8 +93,12 @@ def create_counters(name):
     except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
-    location_url = url_for('read_counters', name=name, _external=True)
-    return jsonify(counter.serialize()), status.HTTP_201_CREATED, {'Location': location_url}
+    location_url = url_for("read_counters", name=name, _external=True)
+    return (
+        jsonify(counter.serialize()),
+        status.HTTP_201_CREATED,
+        {"Location": location_url},
+    )
 
 
 ############################################################
@@ -100,7 +106,7 @@ def create_counters(name):
 ############################################################
 @app.route("/counters/<name>", methods=["PUT"])
 def update_counters(name):
-    """ Update a counter """
+    """Update a counter"""
     app.logger.info("Request to Update counter...")
     try:
         counter = Counter.find(name)
@@ -119,7 +125,7 @@ def update_counters(name):
 ############################################################
 @app.route("/counters/<name>", methods=["DELETE"])
 def delete_counters(name):
-    """ Delete a counter """
+    """Delete a counter"""
     app.logger.info("Request to Delete counter...")
     try:
         counter = Counter.find(name)
@@ -135,9 +141,10 @@ def delete_counters(name):
 #  U T I L I T Y   F U N C I O N S
 ############################################################
 
+
 @app.before_first_request
 def init_db():
-    """ Initialize the database """
+    """Initialize the database"""
     try:
         app.logger.info("Initializing the Redis database")
         Counter.connect(DATABASE_URI)

@@ -36,21 +36,21 @@ logging.disable(logging.CRITICAL)
 #  T E S T   C A S E S
 ######################################################################
 class CounterTests(TestCase):
-    """ Counter Model Tests """
+    """Counter Model Tests"""
 
     @classmethod
     def setUpClass(cls):
-        """ Run before all tests """
+        """Run before all tests"""
         # Counter.connect(DATABASE_URI)
 
     def setUp(self):
-        """ This runs before each test """
+        """This runs before each test"""
         Counter.connect(DATABASE_URI)
         Counter.remove_all()
         self.counter = Counter()
 
     def tearDown(self):
-        """ This runs after each test """
+        """This runs after each test"""
         # Counter.redis.flushall()
         pass
 
@@ -59,51 +59,51 @@ class CounterTests(TestCase):
     ######################################################################
 
     def test_create_counter_with_name(self):
-        """ It should Create a counter with a name """
+        """It should Create a counter with a name"""
         counter = Counter("foo")
         self.assertIsNotNone(counter)
         self.assertEqual(counter.name, "foo")
         self.assertEqual(counter.value, 0)
 
     def test_create_counter_no_name(self):
-        """ It should not Create a counter without a name """
+        """It should not Create a counter without a name"""
         self.assertIsNotNone(self.counter)
         self.assertEqual(self.counter.name, "hits")
         self.assertEqual(self.counter.value, 0)
 
     def test_serialize_counter(self):
-        """ It should Serialize a counter """
+        """It should Serialize a counter"""
         self.assertIsNotNone(self.counter)
         data = self.counter.serialize()
         self.assertEqual(data["name"], "hits")
         self.assertEqual(data["counter"], 0)
 
     def test_set_list_counters(self):
-        """ It should List all of the counters """
+        """It should List all of the counters"""
         _ = Counter("foo")
         _ = Counter("bar")
         counters = Counter.all()
         self.assertEqual(len(counters), 3)
 
     def test_set_find_counter(self):
-        """ It should Find a counter """
+        """It should Find a counter"""
         _ = Counter("foo")
         _ = Counter("bar")
         foo = Counter.find("foo")
         self.assertEqual(foo.name, "foo")
 
     def test_counter_not_found(self):
-        """ It should not find a counter """
+        """It should not find a counter"""
         foo = Counter.find("foo")
         self.assertIsNone(foo)
 
     def test_set_get_counter(self):
-        """ It should Set and then Get the counter """
+        """It should Set and then Get the counter"""
         self.counter.value = 13
         self.assertEqual(self.counter.value, 13)
 
     def test_delete_counter(self):
-        """ It should Delete a counter """
+        """It should Delete a counter"""
         counter = Counter("foo")
         self.assertEqual(counter.value, 0)
         del counter.value
@@ -113,7 +113,7 @@ class CounterTests(TestCase):
         self.assertEqual(self.counter.value, 0)
 
     def test_increment_counter(self):
-        """ It should Increment the current value of the counter by 1 """
+        """It should Increment the current value of the counter by 1"""
         count = self.counter.value
         next_count = self.counter.increment()
         logging.debug(
@@ -126,7 +126,7 @@ class CounterTests(TestCase):
         self.assertEqual(next_count, count + 1)
 
     def test_increment_counter_to_2(self):
-        """ It should Increment the counter to 2 """
+        """It should Increment the counter to 2"""
         self.assertEqual(self.counter.value, 0)
         self.counter.increment()
         self.assertEqual(self.counter.value, 1)
@@ -136,11 +136,11 @@ class CounterTests(TestCase):
 
     @patch("redis.Redis.ping")
     def test_no_connection(self, ping_mock):
-        """ It should Handle a failed connection """
+        """It should Handle a failed connection"""
         ping_mock.side_effect = ConnectionError()
         self.assertRaises(DatabaseConnectionError, self.counter.connect, DATABASE_URI)
 
     @patch.dict(os.environ, {"DATABASE_URI": ""})
     def test_missing_environment_creds(self):
-        """ It should detect Missing environment credentials """
+        """It should detect Missing environment credentials"""
         self.assertRaises(DatabaseConnectionError, self.counter.connect)
