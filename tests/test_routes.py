@@ -28,9 +28,9 @@ from service import app
 from service.models import Counter, DatabaseConnectionError
 from service.common import status
 
-DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
-
 # logging.disable(logging.CRITICAL)
+
+DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 
 
 ######################################################################
@@ -67,37 +67,37 @@ class ServiceTest(TestCase):
     def test_index(self):
         """ It should return the home page """
         resp = self.app.get("/")
-        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_health(self):
         """ It should get the health endpoint """
         resp = self.app.get("/health")
-        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["status"], "OK")
 
     def test_create_counter(self):
         """ It should Create a counter """
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
         self.assertEqual(data["counter"], 0)
 
     def test_counter_already_exists(self):
         """ It should not Counter that already exists """
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
     def test_list_counters(self):
         """ It should Get multiple counters """
         resp = self.app.post("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.post("/counters/bar")
-        self.assertEquals(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         resp = self.app.get("/counters")
-        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 2)
 
@@ -105,30 +105,30 @@ class ServiceTest(TestCase):
         """ It should Get a counter """
         self.test_create_counter()
         resp = self.app.get("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["counter"], 0)
 
     def test_get_counter_not_found(self):
         """ It should not return a counter that does not exist """
         resp = self.app.get("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_put_counter_not_found(self):
         """ It should not update a counter that does not exist """
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_increment_counter(self):
         """ It should Increment the counter """
         self.test_get_counter()
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["counter"], 1)
 
         resp = self.app.put("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         logging.debug(data)
         self.assertEqual(data["counter"], 2)
@@ -137,12 +137,12 @@ class ServiceTest(TestCase):
         """ It should Delete the counter """
         self.test_create_counter()
         resp = self.app.delete("/counters/foo")
-        self.assertEquals(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_method_not_allowed(self):
         """ It should not allow usuported Methods """
         resp = self.app.post("/counters")
-        self.assertEquals(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     ######################################################################
     #  T E S T   E R R O R   H A N D L E R S
