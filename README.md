@@ -1,49 +1,106 @@
-# lab-docker
+# NYU DevOps Docker Lab
 
 [![Build Status](https://github.com/nyu-devops/lab-docker/actions/workflows/workflow.yaml/badge.svg)](https://github.com/nyu-devops/lab-docker/actions)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-green.svg)](https://www.python.org/)
+[![Open in Remote - Containers](https://img.shields.io/static/v1?label=Remote%20-%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/nyu-devops/lab-docker)
 
 What is Docker? How can Docker containers help you build and deploy a cloud native solution as micro-services? This lab will teach you what-you-need-to-know to get started building and running Docker Containers. It covers what Docker is, and more importantly, what Docker is not! You will learn how to deploy and run existing Docker community images, how to create your own Docker images, and how to connect containers together using Docker Compose. If you want to know what all this fuss about containers is about, come to this lab and spin up a few containers and see for yourself why everyone is adopting Docker.
 
 This lab is an example of how to create a Python / Flask / Redis app using Docker.
 
-## Setting up your Development Environment
+## Prerequisite Software Installation
 
-We use Vagrant, VirtualBox, and Docker for virtualizing our development environment. Vagrant is technology that allows you to quickly provision and configure Linux virtual machines on your computer. VirtualBox is a hypervisor like VMware Fusion orr Parallels Desktop that hosts virtual machines. Docker is technology that will run multiple containers within a single Linux host machine. Together they make a powerful development environment that mimics multiple servers in a production environment.
+This lab uses Docker and Visual Studio Code with the Remote Containers extension to provide a consistent repeatable disposable development environment for all of the labs in this course.
 
-If you are using 2020 or later Mac with an **Apple M1 Silicon** processor you cannot use VirtualBox because it only runs on Intel base computers and Apple Silicon is ARM based. You should install Docker Desktop instead.
+You will need the following software installed:
 
-### Intel x86 based install
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Visual Studio Code](https://code.visualstudio.com)
+- [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension from the Visual Studio Marketplace
 
-To get started on Intel, download VirtualBox and Vagrant if you don't have them already:
+All of these can be installed manually by clicking on the links above or you can use a package manager like **Homebrew** on Mac of **Chocolatey** on Windows.
 
-- Download [VirtualBox](https://www.virtualbox.org) - Used to host virtual machines locally on your workstation
+### Install with homebrew
 
-- Download [Vagrant](https://www.vagrantup.com) - Used to auto-provision VMs containing your complete dev environment
+If you are on a Mac you can easily install this software with [Home Brew](http://brew.sh)
 
-Install VirtualBox and then Vagrant.
-
-```sh
-git clone https://github.com/nyu-devops/lab-docker.git
-cd lab-docker
-vagrant up
-vagrant ssh
+```bash
+brew install --cask docker
+brew install --cask visual-studio-code
 ```
 
-### Apple M1 Silicon install
+You must setup Visual Studio Code as a Mac to launch from the command line using [these instructions](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line). Then you can run the code command to install the remote containers extension.
 
-To get started on Apple M1 Silicon, download Docker Desktop and Vagrant instead of VirtualBox if you don't have them already:
-
-- Download [Docker Desktop](https://www.docker.com/products/docker-desktop) - Used to host containers locally on your workstation that behave like virtual machines.
-
-Vagrant will install Docker into the virtual machine so you don't have to.
-
-```sh
-git clone https://github.com/nyu-devops/lab-docker.git
-cd lab-docker
-vagrant up --provider=docker
-vagrant ssh
+```bash
+code --install-extension ms-vscode-remote.remote-containers
 ```
 
-Note the difference between starting vagrant with Docker is to add `--provider=docker` to the `vagrant up` command. If you only have Docker installed and not VirtualBox then you can omit the `--provider` option since you only have one provider on your computer. This is mostly needed if you have more than one provider.
+You are now ready to work in the lab.
 
-This repo is part of the NYU masters class: **CSCI-GA.2820 DevOps and Agile Methodologies** created by John Rofrano.
+### Alternate using Vagrant
+
+Alternately, you can use [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/) to create a consistent development environment in a virtual machine (VM).
+
+You can read more about creating these environments in my article: [Creating Reproducible Development Environments](https://johnrofrano.medium.com/creating-reproducible-development-environments-fac8d6471f35)
+
+## Bring up the development environment
+
+To bring up the development environment you should clone this repo, change into the repo directory:
+
+```bash
+$ git clone https://github.com/nyu-devops/lab-docker.git
+$ cd lab-docker
+```
+
+Depending on which development environment you created, pick from the following:
+
+### Start developing with Visual Studio Code and Docker
+
+Open Visual Studio Code using the `code .` command. VS Code will prompt you to reopen in a container and you should say **yes**. This will take a while as it builds the Docker image and creates a container from it to develop in.
+
+```bash
+$ code .
+```
+
+Note that there is a period `.` after the `code` command. This tells Visual Studio Code to open the editor and load the current folder of files.
+
+Once the environment is loaded you should be placed at a `bash` prompt in the `/app` folder inside of the development container. This folder is mounted to the current working directory of your repository on your computer. This means that any file you edit while inside of the `/app` folder in the container is actually being edited on your computer. You can then commit your changes to `git` from either inside or outside of the container.
+
+## Running the tests
+
+As developers we always want to run the tests before we change any code. That way we know if we broke the code or if someone before us did. Always run the test cases first!
+
+Run the tests using `nosetests`
+
+```shell
+$ nosetests
+```
+
+Nose is configured via the included `setup.cfg` file to automatically include the flags `--with-spec --spec-color` so that red-green-refactor is meaningful. If you are in a command shell that supports colors, passing tests will be green while failing tests will be red.
+
+## What's featured in the project?
+
+This project uses Python Flask and Redis to create a RESTful counter service that can keep track of multiple named counters.
+
+```text
+service         <- Package for the service
+├── common      <- Common error and log handlers
+├── models.py   <- Model for Redis based counter
+├── routes.py   <- Controller for REST API
+└── static      <- Status HTML assets
+
+tests               <- Tests package
+├── test_models.py  <- Test cases for the models 
+└── test_routes.py  <- Test cases for the routes
+```
+
+The development environment uses **Docker-in-Docker** so that you have an isolated Docker environment within your Docker development container.
+
+## License
+
+Copyright (c) John Rofrano. All rights reserved.
+
+Licensed under the Apache License. See [LICENSE](LICENSE)
+
+This repo is part of the NYU masters class: **CSCI-GA.2820-001 DevOps and Agile Methodologies** conceived, created and taught by *John Rofrano*
