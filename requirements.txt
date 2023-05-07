@@ -2,7 +2,7 @@
 Werkzeug==2.2.2
 
 # Build dependencies
-Flask==2.2.2
+Flask==2.2.5
 redis==4.5.4
 python-dotenv==0.21.1
 
