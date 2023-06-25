@@ -24,7 +24,7 @@ import os
 import logging
 from unittest import TestCase
 from unittest.mock import patch
-from service import app
+from wsgi import app
 from service.models import Counter, DatabaseConnectionError
 from service.common import status
 
@@ -48,7 +48,6 @@ class ServiceTest(TestCase):
     @classmethod
     def tearDownClass(cls):
         """This runs once after the entire test suite"""
-        pass
 
     def setUp(self):
         """This runs before each test"""
@@ -58,7 +57,6 @@ class ServiceTest(TestCase):
 
     def tearDown(self):
         """This runs after each test"""
-        pass
 
     ######################################################################
     #  T E S T   C A S E S
