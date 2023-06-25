@@ -11,7 +11,7 @@
     "runArgs": ["-h","nyu", "--name", "lab-docker"],
     "remoteEnv": {
       "FLASK_DEBUG:": "True",
-      "FLASK_APP": "service:app",
+      "FLASK_APP": "wsgi:app",
       "PORT": "8000",
 	  "GUNICORN_BIND": "0.0.0.0:8080"
     },
