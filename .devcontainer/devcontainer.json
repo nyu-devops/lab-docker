@@ -10,27 +10,37 @@
     "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind,consistency=delegated",
     "runArgs": ["-h","nyu", "--name", "lab-docker"],
     "remoteEnv": {
-      "FLASK_ENV": "development",
+      "FLASK_DEBUG:": "True",
       "FLASK_APP": "service:app",
-      "PORT": "8080",
+      "PORT": "8000",
 	  "GUNICORN_BIND": "0.0.0.0:8080"
     },
-	"extensions": [
-		"ms-python.python",
-		"ms-python.vscode-pylance",
-		"yzhang.markdown-all-in-one",
-		"bierner.github-markdown-preview",
-		"hnw.vscode-auto-open-markdown-preview",
-		"DavidAnson.vscode-markdownlint",
-		"donjayamanne.githistory",
-		"njpwerner.autodocstring",
-		"redhat.vscode-yaml",
-		"rangav.vscode-thunder-client",
-		"wholroyd.jinja",
-		"ms-azuretools.vscode-docker"
-	],
-	// "forwardPorts": [8080],
-	"postCreateCommand": "bash /app/.devcontainer/scripts/setup.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.pylint",
+				"yzhang.markdown-all-in-one",
+				"bierner.github-markdown-preview",
+				"hnw.vscode-auto-open-markdown-preview",
+				"DavidAnson.vscode-markdownlint",
+				"donjayamanne.githistory",
+				"GitHub.vscode-pull-request-github",
+				"hbenl.vscode-test-explorer",
+				"LittleFoxTeam.vscode-python-test-adapter",
+				"njpwerner.autodocstring",
+				"redhat.vscode-yaml",
+				"rangav.vscode-thunder-client",
+				"redhat.vscode-yaml",
+				"streetsidesoftware.code-spell-checker",
+				"wholroyd.jinja",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+	// "forwardPorts": [8000],
+	"postCreateCommand": "bash /app/.devcontainer/scripts/setup-lab.sh",
 	"features": {
 		"docker-in-docker": "latest"
 	}
