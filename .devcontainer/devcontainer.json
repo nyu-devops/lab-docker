@@ -12,7 +12,7 @@
     "remoteEnv": {
       "FLASK_DEBUG:": "True",
       "FLASK_APP": "wsgi:app",
-      "PORT": "8000",
+      "PORT": "8080",
 	  "GUNICORN_BIND": "0.0.0.0:8080"
     },
 	"customizations": {
