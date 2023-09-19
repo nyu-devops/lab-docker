@@ -23,7 +23,6 @@ RUN groupadd --gid $USER_GID $USERNAME \
 WORKDIR /app
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip wheel && \
-    pip install docker-compose && \
     pip install -r requirements.txt
 
 # Enable color terminal for docker exec bash
