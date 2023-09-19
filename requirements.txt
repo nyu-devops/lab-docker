@@ -3,23 +3,23 @@ Werkzeug==2.3.3
 
 # Build dependencies
 Flask==2.3.2
-redis==4.5.5
+redis==5.0.0
 flask-redis==0.4.0
-python-dotenv==0.21.1
+python-dotenv==1.0.0
 
 # Runtime dependencies
-gunicorn==20.1.0
+gunicorn==21.2.0
 honcho==1.1.0
 
 # Code quality
-pylint==2.16.2
-flake8==6.0.0
-black==23.1.0
+pylint==2.17.5
+flake8==6.1.0
+black==23.9.1
 
 # Testing dependencies
 green==3.4.3
-factory-boy==3.2.1
-coverage==7.1.0
+factory-boy==3.3.0
+coverage==7.3.1
 
 # Utilities
-httpie==3.2.1
+httpie==3.2.2

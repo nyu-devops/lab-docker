@@ -17,10 +17,25 @@
     },
 	"customizations": {
 		"vscode": {
+			"settings": {
+				"[python]": {
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					"editor.formatOnSave": true
+				},
+				"markdown-preview-github-styles.colorTheme": "light",
+				"files.exclude": {
+					"**/.git": true,
+					"**/.DS_Store": true,
+					"**/*.pyc": true,
+					"**/__pycache__": true,
+					"**/.pytest_cache": true
+				}    
+			},
 			"extensions": [
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"ms-python.pylint",
+				"ms-python.black-formatter",
 				"yzhang.markdown-all-in-one",
 				"bierner.github-markdown-preview",
 				"hnw.vscode-auto-open-markdown-preview",
@@ -30,18 +45,19 @@
 				"hbenl.vscode-test-explorer",
 				"LittleFoxTeam.vscode-python-test-adapter",
 				"njpwerner.autodocstring",
+				"wholroyd.jinja",
 				"redhat.vscode-yaml",
 				"rangav.vscode-thunder-client",
-				"redhat.vscode-yaml",
 				"streetsidesoftware.code-spell-checker",
-				"wholroyd.jinja",
 				"ms-azuretools.vscode-docker"
+				"ms-kubernetes-tools.vscode-kubernetes-tools",
+				"streetsidesoftware.code-spell-checker"
 			]
 		}
 	},
 	// "forwardPorts": [8000],
-	"postCreateCommand": "bash /app/.devcontainer/scripts/setup-lab.sh",
 	"features": {
-		"docker-in-docker": "latest"
-	}
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	"postCreateCommand": "bash /app/.devcontainer/scripts/setup-lab.sh"
 }
