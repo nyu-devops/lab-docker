@@ -5,7 +5,10 @@
 #    export API_KEY=...
 #
 
+# These can be overidden with env vars.
 IMAGE_NAME ?= lab-docker
+
+.SILENT:
 
 .PHONY: help
 help: ## Display this help
@@ -16,34 +19,43 @@ all: help
 
 ##@ Development
 
+.PHONY: clean
+clean:	## Removes all dangling docker images
+	$(info Removing all dangling docker images..)
+	docker image prune -f
+
+.PHONY: venv
 venv: ## Create a Python virtual environment
 	$(info Creating Python 3 virtual environment...)
-	python3 -m venv .venv
+	poetry config virtualenvs.in-project true
+	poetry shell
 
+.PHONY: install
 install: ## Install dependencies
 	$(info Installing dependencies...)
-	sudo pip install -r requirements.txt
+	sudo poetry config virtualenvs.create false
+	sudo poetry install
 
+.PHONY: lint
 lint: ## Run the linter
 	$(info Running linting...)
 	flake8 service tests --count --select=E9,F63,F7,F82 --show-source --statistics
 	flake8 service tests --count --max-complexity=10 --max-line-length=127 --statistics
 	pylint service tests --max-line-length=127
 
+.PHONY: tests
 test: ## Run the unit tests
 	$(info Running tests...)
-	green -vvv --processes=1 --run-coverage --termcolor --minimum-coverage=95
+	pytest --pspec --cov=service --cov-fail-under=95
 
 ##@ Runtime
 
-run: ## Run the service
-	$(info Starting service...)
-	honcho start
-
+.PHONY: build
 build: ## Build a docker image
 	$(info Building $(IMAGE_NAME) Image...)
 	docker build --rm --pull -t $(IMAGE_NAME) .
 
-clean: ## Prune untagged Docker images
-	$(info Checking for untagged images)
-	docker images prune
+.PHONY: run
+run: ## Run the service
+	$(info Starting service...)
+	honcho start
