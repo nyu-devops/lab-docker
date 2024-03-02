@@ -27,7 +27,7 @@ from service.common import log_handlers
 ############################################################
 # Initialize the Flask instance
 ############################################################
-def init_app():
+def create_app():
     """Initialize the core application."""
     app = Flask(__name__)
     app.config.from_object(config)
@@ -54,7 +54,7 @@ def init_app():
         # Initialize the database
         try:
             app.logger.info("Initializing the Redis database")
-            models.Counter.connect(app.config['DATABASE_URI'])
+            models.Counter.connect(app.config["DATABASE_URI"])
             app.logger.info("Connected!")
         except models.DatabaseConnectionError as err:
             app.logger.error(str(err))
