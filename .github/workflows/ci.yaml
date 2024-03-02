@@ -19,7 +19,7 @@ jobs:
     # Required services    
     services:
       redis:
-        image: redis
+        image: redis:6-alpine
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -31,8 +31,9 @@ jobs:
       
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip wheel
-          pip install -r requirements.txt
+          python -m pip install poetry
+          poetry config virtualenvs.create false
+          poetry install
 
       - name: Linting
         run: |
@@ -43,10 +44,10 @@ jobs:
           # Run pylint on the service
           pylint service tests --max-line-length=127
 
-      - name: Run unit tests with green
-        run: green
+      - name: Run unit tests with PyTest
+        run: pytest
         env:
-          DATABASE_URI: "redis://redis:6379"
+          DATABASE_URI: "redis://redis:6379/0"
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.1.0
