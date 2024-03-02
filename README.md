@@ -71,13 +71,13 @@ Once the environment is loaded you should be placed at a `bash` prompt in the `/
 
 As developers we always want to run the tests before we change any code. That way we know if we broke the code or if someone before us did. Always run the test cases first!
 
-Run the tests using `nosetests`
+Run the tests using `pytest`
 
 ```shell
-$ nosetests
+$ make test
 ```
 
-Nose is configured via the included `setup.cfg` file to automatically include the flags `--with-spec --spec-color` so that red-green-refactor is meaningful. If you are in a command shell that supports colors, passing tests will be green while failing tests will be red.
+PyTest is configured via the included `pyproject.toml` file to automatically include the flags `--pspec --cov=service --cov-fail-under=95` so that red-green-refactor is meaningful. If you are in a command shell that supports colors, passing tests will be green while failing tests will be red.
 
 ## What's featured in the project?
 
@@ -99,8 +99,8 @@ The development environment uses **Docker-in-Docker** so that you have an isolat
 
 ## License
 
-Copyright (c) John Rofrano. All rights reserved.
+Copyright (c) 2016, 2024 [John Rofrano](https://www.linkedin.com/in/JohnRofrano/). All rights reserved.
 
 Licensed under the Apache License. See [LICENSE](LICENSE)
 
-This repo is part of the NYU masters class: **CSCI-GA.2820-001 DevOps and Agile Methodologies** conceived, created and taught by *John Rofrano*
+This repository is part of the New York University (NYU) masters class: **CSCI-GA.2820-001 DevOps and Agile Methodologies** created and taught by [John Rofrano](https://cs.nyu.edu/~rofrano/), Adjunct Instructor, NYU Courant Institute, Graduate Division, Computer Science, and NYU Stern School of Business.
