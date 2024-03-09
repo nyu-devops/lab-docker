@@ -43,10 +43,10 @@ lint: ## Run the linter
 	flake8 service tests --count --max-complexity=10 --max-line-length=127 --statistics
 	pylint service tests --max-line-length=127
 
-.PHONY: tests
+.PHONY: test
 test: ## Run the unit tests
 	$(info Running tests...)
-	pytest --pspec --cov=service --cov-fail-under=95
+	export RETRY_COUNT=1; pytest --pspec --cov=service --cov-fail-under=95
 
 ##@ Runtime
 

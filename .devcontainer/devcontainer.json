@@ -48,6 +48,7 @@
 				"yzhang.markdown-all-in-one",
 				"DavidAnson.vscode-markdownlint",
 				"bierner.github-markdown-preview",
+				"bierner.markdown-preview-github-styles",
 				"hnw.vscode-auto-open-markdown-preview",
 				"tamasfe.even-better-toml",
 				"donjayamanne.githistory",

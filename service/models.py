@@ -19,12 +19,18 @@ Counter Model
 import os
 import logging
 from typing import List, Optional, Self
+from retry import retry
 from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
 logger = logging.getLogger(__name__)
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://localhost:6379")
+
+# global variables for retry (must be int)
+RETRY_COUNT = int(os.environ.get("RETRY_COUNT", 5))
+RETRY_DELAY = int(os.environ.get("RETRY_DELAY", 1))
+RETRY_BACKOFF = int(os.environ.get("RETRY_BACKOFF", 2))
 
 
 class DatabaseConnectionError(RedisConnectionError):
@@ -79,10 +85,7 @@ class Counter:
 
     def serialize(self) -> dict:
         """Converts a counter into a dictionary"""
-        return {
-            "name": self.name,
-            "counter": int(Counter.redis.get(self.name))
-        }
+        return {"name": self.name, "counter": int(Counter.redis.get(self.name))}
 
     ######################################################################
     #  F I N D E R   M E T H O D S
@@ -137,6 +140,13 @@ class Counter:
         return success
 
     @classmethod
+    @retry(
+        DatabaseConnectionError,
+        delay=RETRY_DELAY,
+        backoff=RETRY_BACKOFF,
+        tries=RETRY_COUNT,
+        logger=logger,
+    )
     def connect(cls, database_uri: Optional[str] = None):
         """Established database connection
 
