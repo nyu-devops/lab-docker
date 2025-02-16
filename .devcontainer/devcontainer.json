@@ -18,6 +18,13 @@
 	"customizations": {
 		"vscode": {
 			"settings": {
+				"cSpell.words": [
+					"wsgi",
+					"pytest",
+					"pipenv"
+					"Redis",
+					"testdb"
+				],
 				"[python]": {
 					"editor.defaultFormatter": "ms-python.black-formatter",
 					"editor.formatOnSave": true
@@ -44,6 +51,8 @@
 				"ms-python.pylint",
 				"ms-python.flake8",
 				"ms-python.black-formatter",
+				"njpwerner.autodocstring",
+				"wholroyd.jinja",
 				"ms-vscode.makefile-tools",
 				"yzhang.markdown-all-in-one",
 				"DavidAnson.vscode-markdownlint",
@@ -56,11 +65,9 @@
 				"github.vscode-github-actions",
 				"hbenl.vscode-test-explorer",
 				"LittleFoxTeam.vscode-python-test-adapter",
-				"njpwerner.autodocstring",
-				"wholroyd.jinja",
 				"redhat.vscode-yaml",
+				"unjinjang.rest-api-client",
 				"ms-azuretools.vscode-docker",
-				"rangav.vscode-thunder-client",
 				"streetsidesoftware.code-spell-checker",
 				"bbenoist.vagrant"
 			]

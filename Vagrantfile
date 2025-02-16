@@ -5,7 +5,7 @@
 # Virtual Development Environment for Python 3 with Docker
 ######################################################################
 Vagrant.configure(2) do |config|
-  config.vm.box = "bento/ubuntu-21.04"
+  config.vm.box = "bento/ubuntu-22.04"
   config.vm.hostname = "ubuntu"
   
   # config.vm.network "forwarded_port", guest: 80, host: 8080
@@ -70,7 +70,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     # Install Python 3 and dev tools 
     apt-get update
-    apt-get install -y git vim tree wget jq python3-dev python3-pip python3-venv apt-transport-https
+    apt-get install -y make git vim tree wget jq python3-dev python3-pip python3-venv apt-transport-https
     apt-get upgrade python3
     
     # Create a Python3 Virtual Environment and Activate it in .profile
@@ -96,7 +96,7 @@ Vagrant.configure(2) do |config|
   ############################################################
   config.vm.provision "docker" do |d|
     d.pull_images "alpine"
-    d.pull_images "python:3.9-slim"
+    d.pull_images "python:3.11-slim"
     d.pull_images "redis:6-alpine"
     d.run "redis:6-alpine",
       args: "--restart=always -d --name redis -p 6379:6379 -v redis:/data"
