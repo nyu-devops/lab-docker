@@ -22,19 +22,18 @@ all: help
 .PHONY: clean
 clean:	## Removes all dangling docker images
 	$(info Removing all dangling docker images..)
-	docker image prune -f
+	-docker image prune -f
+	-rm .coverage coverage.xml unittests.xml
 
 .PHONY: venv
 venv: ## Create a Python virtual environment
 	$(info Creating Python 3 virtual environment...)
-	poetry config virtualenvs.in-project true
-	poetry shell
+	pipenv shell
 
 .PHONY: install
 install: ## Install dependencies
 	$(info Installing dependencies...)
-	sudo poetry config virtualenvs.create false
-	sudo poetry install
+	pipenv install --dev
 
 .PHONY: lint
 lint: ## Run the linter
