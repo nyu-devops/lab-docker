@@ -21,7 +21,7 @@
 				"cSpell.words": [
 					"wsgi",
 					"pytest",
-					"pipenv"
+					"pipenv",
 					"Redis",
 					"testdb"
 				],
