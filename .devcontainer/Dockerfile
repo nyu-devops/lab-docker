@@ -1,7 +1,7 @@
 # Image for a Python 3 development environment
 FROM python:3.11-slim
 
-# Add any tools that are needed beyond Python 3
+# Add any tools that are needed beyond Python 3.11
 RUN apt-get update && \
     apt-get install -y sudo vim make git zip tree curl wget jq procps net-tools && \
     apt-get autoremove -y && \
@@ -22,15 +22,14 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 # Set up the Python development environment
 WORKDIR /app
-COPY pyproject.toml poetry.lock ./
-RUN sudo python -m pip install --upgrade pip poetry && \
-    sudo poetry config virtualenvs.create false && \
-    sudo poetry install
+COPY Pipfile Pipfile.lock ./
+RUN python -m pip install -U pip pipenv && \
+    pipenv install --system --dev
 
 # Enable color terminal for docker exec bash
 ENV TERM=xterm-256color
 
-EXPOSE 5000
+EXPOSE 8080
 
 # Become a regular user for development
 USER $USERNAME

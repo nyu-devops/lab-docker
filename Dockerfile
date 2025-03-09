@@ -2,10 +2,11 @@ FROM python:3.11-slim
 
 # Create working folder and install dependencies
 WORKDIR /app
-COPY pyproject.toml poetry.lock ./
-RUN python -m pip install --upgrade pip poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --without dev
+
+# Set up the Python development environment without dev tools
+COPY Pipfile Pipfile.lock ./
+RUN python -m pip install -U pip pipenv && \
+    pipenv install --system
 
 # Copy the application contents
 COPY wsgi.py .
