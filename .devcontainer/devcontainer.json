@@ -13,7 +13,8 @@
       "FLASK_DEBUG:": "True",
       "FLASK_APP": "wsgi:app",
       "PORT": "8080",
-	  "GUNICORN_BIND": "0.0.0.0:8080"
+	  "GUNICORN_BIND": "0.0.0.0:8080",
+	  "PIPENV_VENV_IN_PROJECT": "1"
     },
 	"customizations": {
 		"vscode": {
@@ -37,6 +38,7 @@
 				"python.testing.pytestArgs": [
 					"tests"
 				],
+				"python.analysis.typeCheckingMode": "standard",
 				"files.exclude": {
 					"**/.git": true,
 					"**/.DS_Store": true,
