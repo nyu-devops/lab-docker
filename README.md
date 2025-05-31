@@ -99,7 +99,7 @@ The development environment uses **Docker-in-Docker** so that you have an isolat
 
 ## License
 
-Copyright (c) 2016, 2024 [John Rofrano](https://www.linkedin.com/in/JohnRofrano/). All rights reserved.
+Copyright (c) 2016, 2025 [John Rofrano](https://www.linkedin.com/in/JohnRofrano/). All rights reserved.
 
 Licensed under the Apache License. See [LICENSE](LICENSE)
 
