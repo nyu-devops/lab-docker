@@ -1,5 +1,5 @@
 # Image for a Python 3 development environment
-FROM quay.io/rofrano/nyu-devops-base:su26
+FROM rofrano/nyu-devops-base:fa26
 
 ARG USERNAME=vscode
 
