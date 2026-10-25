@@ -21,6 +21,7 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
+
 import os
 import logging
 from unittest import TestCase
@@ -36,7 +37,7 @@ logging.disable(logging.CRITICAL)
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class CounterTests(TestCase):
+class CounterModelTest(TestCase):
     """Counter Model Tests"""
 
     @classmethod

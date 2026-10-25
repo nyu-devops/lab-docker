@@ -77,7 +77,7 @@ Run the tests using `pytest`
 $ make test
 ```
 
-PyTest is configured via the included `pyproject.toml` file to automatically include the flags `--pspec --cov=service --cov-fail-under=95` so that red-green-refactor is meaningful. If you are in a command shell that supports colors, passing tests will be green while failing tests will be red.
+PyTest is configured via the included `pyproject.toml` file to automatically include the flags `--spec --cov=service --cov-fail-under=95` so that red-green-refactor is meaningful. If you are in a command shell that supports colors, passing tests will be green while failing tests will be red.
 
 ## What's featured in the project?
 
@@ -99,7 +99,7 @@ The development environment uses **Docker-in-Docker** so that you have an isolat
 
 ## License
 
-Copyright (c) 2016, 2025 [John Rofrano](https://www.linkedin.com/in/JohnRofrano/). All rights reserved.
+Copyright (c) 2016, 2026 [John Rofrano](https://www.linkedin.com/in/JohnRofrano/). All rights reserved.
 
 Licensed under the Apache License. See [LICENSE](LICENSE)
 
