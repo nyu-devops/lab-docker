@@ -1,10 +1,10 @@
+# cspell:disable
 #
 # Makefile to build and push docker images
 #
 # This Makefile assumes that the current folder has a secret file called .env which contains:
 #    export API_KEY=...
 #
-
 # These can be overidden with env vars.
 IMAGE_NAME ?= lab-docker
 
@@ -45,7 +45,7 @@ lint: ## Run the linter
 .PHONY: test
 test: ## Run the unit tests
 	$(info Running tests...)
-	export RETRY_COUNT=1; pytest --pspec --cov=service --cov-fail-under=95
+	export RETRY_COUNT=1; pytest --spec --cov=service --cov-fail-under=95
 
 ##@ Runtime
 

@@ -20,6 +20,7 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
+
 import os
 import logging
 from unittest import TestCase
@@ -36,7 +37,7 @@ DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class ServiceTest(TestCase):
+class CounterServiceTest(TestCase):
     """REST API Server Tests"""
 
     @classmethod
@@ -138,7 +139,7 @@ class ServiceTest(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_method_not_allowed(self):
-        """It should not allow usuported Methods"""
+        """It should not allow unsupported Methods"""
         resp = self.app.post("/counters")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 

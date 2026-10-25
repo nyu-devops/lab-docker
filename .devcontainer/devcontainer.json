@@ -1,4 +1,5 @@
 // Docker-in-docker setup for lab environment
+// cspell:disable
 {
 	"name": "Docker-in-Docker",
     "build": {
@@ -24,7 +25,9 @@
 					"pytest",
 					"pipenv",
 					"Redis",
-					"testdb"
+					"testdb",
+					"creds",
+					"flushall"
 				],
 				"[python]": {
 					"editor.defaultFormatter": "ms-python.black-formatter",
